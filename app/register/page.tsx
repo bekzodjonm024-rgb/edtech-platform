@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth/context";
 import { useI18n } from "@/lib/i18n/context";
 import { authStrings } from "@/lib/i18n/auth-strings";
 import { Button } from "@/components/ui/button";
+import { SocialLogins } from "@/components/auth/social-logins";
 import { GraduationCap, Loader2, BookUser, GraduationCap as GradCap } from "lucide-react";
 
 export default function RegisterPage() {
@@ -104,6 +105,8 @@ export default function RegisterPage() {
               {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> {a.loading}</> : a.signUpBtn}
             </Button>
           </form>
+
+          <SocialLogins role={role} />
 
           <p className="mt-5 text-center text-sm text-slate-500 dark:text-slate-400">
             {a.haveAccount}{" "}

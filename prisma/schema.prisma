@@ -16,7 +16,9 @@ model User {
   email       String       @unique
   name        String
   role        String       @default("teacher") // "teacher" | "student"
-  password    String
+  password    String? // null for OAuth-only (Google / Telegram) users
+  provider    String       @default("email") // "email" | "google" | "telegram"
+  providerId  String? // Google sub / Telegram id
   createdAt   DateTime     @default(now())
   materials   Material[]
   ownedGroups Group[]      @relation("TeacherGroups")
