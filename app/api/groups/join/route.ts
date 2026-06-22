@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/auth";
+import { parseJson } from "@/lib/validation";
+import { rateLimitResponse } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
+
+const schema = z.object({ code: z.string().max(40).optional() });
 
 export async function POST(req: Request) {
   const user = await getSessionUser();
@@ -11,13 +16,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "student_only" }, { status: 403 });
   }
 
-  const { code } = await req.json();
-  if (!code || !String(code).trim()) {
+  const limited = rateLimitResponse(req, "groups:join", { limit: 20, windowMs: 60_000, id: user.id });
+  if (limited) return limited;
+
+  const { data, error } = await parseJson(req, schema);
+  if (error) return error;
+  const code = String(data.code ?? "").trim();
+  if (!code) {
     return NextResponse.json({ error: "missing_code" }, { status: 400 });
   }
 
   const group = await prisma.group.findUnique({
-    where: { code: String(code).trim().toUpperCase() },
+    where: { code: code.toUpperCase() },
     select: { id: true, name: true },
   });
   if (!group) {

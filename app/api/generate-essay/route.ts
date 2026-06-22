@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { getSessionUser } from "@/lib/auth";
+import { parseJson } from "@/lib/validation";
+import { rateLimitResponse } from "@/lib/rate-limit";
 import { getClient, hasApiKey, MODEL, LANGUAGE_NAMES } from "@/lib/anthropic";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+const schema = z.object({
+  topic: z.string().trim().min(1).max(300),
+  subject: z.string().max(200).optional(),
+  language: z.string().max(10).optional(),
+});
 
 const ESSAY_SCHEMA = {
   type: "object",
@@ -17,14 +27,19 @@ const ESSAY_SCHEMA = {
 } as const;
 
 export async function POST(req: Request) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const limited = rateLimitResponse(req, "ai:generate-essay", { limit: 15, windowMs: 60_000, id: user.id });
+  if (limited) return limited;
+
   if (!hasApiKey()) {
     return NextResponse.json({ error: "no_api_key" }, { status: 503 });
   }
 
-  const { topic, subject, language } = await req.json();
-  if (!topic) {
-    return NextResponse.json({ error: "missing_topic" }, { status: 400 });
-  }
+  const { data, error } = await parseJson(req, schema);
+  if (error) return error;
+  const { topic, subject, language } = data;
 
   const lang = LANGUAGE_NAMES[language as string] || "Uzbek";
 
