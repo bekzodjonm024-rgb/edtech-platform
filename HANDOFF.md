@@ -1,7 +1,8 @@
 # EduAI OS — Project Handoff & Status
 
 > Full context for continuing this project in a new session. Last updated: 2026-06-23
-> (added: real-data dashboards, AI essay grading, teacher Analytics, Settings page).
+> (added: real-data dashboards, AI essay grading, teacher Analytics, Settings page,
+> **security hardening — see §13**).
 
 ## 1. What this is
 
@@ -47,6 +48,7 @@ Sign up / log in  (Email · Google · Telegram)
 - **Submission** — assignmentId→Assignment, studentId→User, score(0-100), correct, total,
   **content?** (essay answer text), **feedback?** (JSON AI evaluation), updatedAt; `@@unique([assignmentId, studentId])`
 - **TelegramLogin** — token(id), role, tgId?, userId?, authedAt?, consumed, createdAt (pending bot logins)
+- **RateLimit** — key(id), count, expires — fixed-window counters for the rate limiter (§13). Swept opportunistically.
 
 > Schema changes auto-apply on deploy: the `build` script runs `prisma db push`, so adding a model
 > creates its table on the next `vercel deploy`. Adding nullable cols / new tables = no data loss.
@@ -99,6 +101,8 @@ Sign up / log in  (Email · Google · Telegram)
 - `lib/auth.ts` — hash/verify, JWT sign/verify, `getSessionUser()`, `setSessionCookie()`, cookie `eduai_session`
 - `lib/oauth.ts` — `oauthUpsert()`, `googleEnabled()`, `telegramEnabled()`, `siteOrigin(req)`
 - `lib/anthropic.ts` — Claude client, `MODEL`, `hasApiKey()`
+- `lib/validation.ts` — `parseJson(req, schema)` (zod) + shared `emailSchema`/`passwordSchema` (§13)
+- `lib/rate-limit.ts` — `rateLimit()` / `rateLimitResponse()`, Postgres-backed durable limiter (§13)
 - `lib/i18n/` — `context.tsx` (provides `t`, `d`, `s`), `dictionaries.ts` (landing), `dash-dictionaries.ts`,
   `screens-dictionaries.ts`, `auth-strings.ts`, `group-strings.ts`
 - `components/dashboard/` — `dashboard-shell.tsx` (sidebar+topbar+auth guard), `sidebar.tsx`, `topbar.tsx`, `stat-card.tsx`
@@ -180,3 +184,23 @@ npm run dev
 - Google flow has NO `prompt=select_account` → already-signed-in users auto-login (intentional, smoother).
 - Telegram uses a **bot /start deep-link** (no phone prompt), NOT the Login Widget. Webhook must point at
   `…/api/telegram/webhook`; if you rotate the token you MUST re-call `setWebhook`.
+
+## 13. Security hardening (added 2026-06-23)
+
+- **Input validation** — `lib/validation.ts` `parseJson(req, schema)` validates every mutating route body
+  with **zod** (was installed but unused). On bad input → `400 {error:"invalid_input"|"invalid_json"}`.
+  Legacy error codes the client special-cases are preserved (`email_taken`, `weak_password`,
+  `invalid_credentials`, `missing_code`, `password_too_short`, …).
+- **Rate limiting** — `lib/rate-limit.ts`, **Postgres-backed fixed window** via the `RateLimit` table.
+  In-memory was tried first but never fired on Vercel (per-instance memory) — confirmed live. Keyed by
+  user id when authenticated, else client IP. **Fails open** if the DB hiccups. Returns `429
+  {error:"rate_limited",retryAfter}` + `Retry-After` header. Limits/min: login 10, register 5, password 10,
+  groups/join 20, AI generate* 15, tutor 30, essay-grade 20. To swap to Upstash Redis later, only this file
+  changes (signatures stay). Verified live: 11th rapid login → 429.
+- **Auth gates added to AI routes** — `generate`, `generate-quiz`, `generate-essay`, `tutor` previously had
+  **no auth** (anyone could burn Claude credits). Now require a session (`getSessionUser`) → `401` otherwise.
+- **Security headers** — `next.config.mjs` `headers()` sets **CSP** (`default-src 'self'`; scripts/styles
+  keep `'unsafe-inline'` because Next injects un-nonced inline scripts + framer-motion inline styles),
+  **HSTS**, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`.
+  ⚠️ If you add a 3rd-party script/CDN/iframe, update the CSP or it'll be blocked. Tightening to nonce-based
+  scripts (drop `'unsafe-inline'`) needs middleware — a future task.
