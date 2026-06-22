@@ -59,6 +59,8 @@ Sign up / log in  (Email · Google · Telegram)
 - `GET /api/auth/google` → Google OAuth; `GET /api/auth/google/callback`
 - Telegram bot-login: `GET /api/auth/telegram/start` (→ t.me/<bot>?start=token) ·
   `POST /api/telegram/webhook` (bot /start handler) · `GET /api/auth/telegram/complete` (finalise session)
+- `GET /api/telegram/setup?secret=<TELEGRAM_WEBHOOK_SECRET>` — (re)registers the webhook using the
+  server-env bot token (use after rotating `TELEGRAM_BOT_TOKEN`; token never leaves the server)
 - `GET /api/auth/telegram/callback` — OLD Login Widget route, still present but UNUSED (the bot flow replaced it)
 
 **AI** (graceful mock fallback if no key / error)
@@ -140,10 +142,12 @@ npm run dev
 ## 10. Pending / TODO (next-session candidates)
 
 1. **Anthropic credits** — add at console.anthropic.com → Billing to flip AI from mock to real (no code change).
-2. **Rotate the Telegram bot token** — it was pasted in chat (leaked). Steps: @BotFather `/revoke` → new token
-   → update `TELEGRAM_BOT_TOKEN` on Vercel → **redeploy** → re-run `setWebhook` with the new token + existing
-   `TELEGRAM_WEBHOOK_SECRET` (else Telegram login breaks). The same applies to the **Neon DB password** that
-   leaked earlier (reset it in Neon if concerned).
+2. ✅ **DONE — Telegram bot token rotated** (2026-06-23). The old leaked token was `/revoke`d in @BotFather,
+   the new one set on Vercel as a **sensitive** env (`TELEGRAM_BOT_TOKEN`, Production), redeployed, and the
+   webhook re-registered. To re-register the webhook after any future rotation **without pasting the token
+   anywhere**, hit the protected helper route (token is read from server env):
+   `GET /api/telegram/setup?secret=<TELEGRAM_WEBHOOK_SECRET>` → calls `setWebhook` + returns `getWebhookInfo`.
+   ⚠️ Still pending: the **Neon DB password** that leaked earlier — reset it in Neon if concerned.
 3. ✅ **DONE — Dashboard widgets bound to real data.** Teacher home (recent lessons, assignment-status
    donut), student home (points, achievements, progress ring, assignments list) all use real DB data now,
    with loading skeletons + shape validation (fixed the old "undefined" stat-card bug). Still on mock:
