@@ -22,6 +22,7 @@ import {
   Trophy,
   Sparkles,
   FolderArchive,
+  TrendingUp,
 } from "lucide-react";
 
 export type Role = "teacher" | "student";
@@ -42,6 +43,7 @@ export function Sidebar({ role, open }: { role: Role; open: boolean }) {
     { icon: Library, label: d.sidebarTeacher.library, href: "/demo/teacher" },
     { icon: Bot, label: d.sidebarTeacher.aiAssistant, href: "/demo/teacher" },
     { icon: BarChart3, label: d.sidebarTeacher.reports, href: "/demo/reports" },
+    { icon: TrendingUp, label: d.analytics.title, href: "/demo/analytics" },
     { icon: FolderArchive, label: materialsLabel, href: "/demo/materials" },
     { icon: MessageSquare, label: d.sidebarTeacher.messages, href: "/demo/teacher" },
     { icon: Settings, label: d.sidebarTeacher.settings, href: "/demo/teacher" },

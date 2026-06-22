@@ -98,6 +98,23 @@ export type DashDict = {
     notFound: string;
     back: string;
   };
+  analytics: {
+    title: string;
+    subtitle: string;
+    avgScore: string;
+    completion: string;
+    active: string;
+    submissions: string;
+    distribution: string;
+    timeline: string;
+    students: string;
+    insights: string;
+    thStudent: string;
+    thSubs: string;
+    thAvg: string;
+    thLast: string;
+    noData: string;
+  };
 };
 
 export const dashDictionaries: Record<Locale, DashDict> = {
@@ -227,6 +244,23 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       notFound: "Topshiriq topilmadi",
       back: "Orqaga",
     },
+    analytics: {
+      title: "Tahlil va statistika",
+      subtitle: "Guruhlaringiz bo'yicha real ko'rsatkichlar",
+      avgScore: "O'rtacha baho",
+      completion: "Topshirish darajasi",
+      active: "Faol talabalar",
+      submissions: "Jami topshiriqlar",
+      distribution: "Baholar taqsimoti",
+      timeline: "Natijalar dinamikasi",
+      students: "Talabalar progressi",
+      insights: "Tavsiyalar",
+      thStudent: "Talaba",
+      thSubs: "Topshiriqlar",
+      thAvg: "O'rtacha",
+      thLast: "Oxirgi faollik",
+      noData: "Hali ma'lumot yo'q. Talabalar topshiriqlarni bajargach, tahlil shu yerda chiqadi.",
+    },
   },
   en: {
     sidebarTeacher: {
@@ -354,6 +388,23 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       notFound: "Assignment not found",
       back: "Back",
     },
+    analytics: {
+      title: "Analytics & statistics",
+      subtitle: "Real metrics across your groups",
+      avgScore: "Average score",
+      completion: "Completion rate",
+      active: "Active students",
+      submissions: "Total submissions",
+      distribution: "Grade distribution",
+      timeline: "Results trend",
+      students: "Student progress",
+      insights: "Insights",
+      thStudent: "Student",
+      thSubs: "Submissions",
+      thAvg: "Average",
+      thLast: "Last active",
+      noData: "No data yet. Once students complete assignments, analytics will appear here.",
+    },
   },
   ru: {
     sidebarTeacher: {
@@ -480,6 +531,23 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       pending: "Оценка ИИ недоступна — преподаватель проверит вручную.",
       notFound: "Задание не найдено",
       back: "Назад",
+    },
+    analytics: {
+      title: "Аналитика и статистика",
+      subtitle: "Реальные показатели по вашим группам",
+      avgScore: "Средний балл",
+      completion: "Доля сдач",
+      active: "Активные студенты",
+      submissions: "Всего сдач",
+      distribution: "Распределение оценок",
+      timeline: "Динамика результатов",
+      students: "Прогресс студентов",
+      insights: "Рекомендации",
+      thStudent: "Студент",
+      thSubs: "Сдачи",
+      thAvg: "Средний",
+      thLast: "Активность",
+      noData: "Данных пока нет. Когда студенты выполнят задания, аналитика появится здесь.",
     },
   },
 };
