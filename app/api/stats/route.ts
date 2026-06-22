@@ -21,15 +21,28 @@ export async function GET() {
       where: { studentId: user.id },
       select: { score: true },
     });
-    const avg = subs.length
-      ? Math.round(subs.reduce((a, s) => a + s.score, 0) / subs.length)
+    const completed = subs.length;
+    const avg = completed
+      ? Math.round(subs.reduce((a, s) => a + s.score, 0) / completed)
       : 0;
+    // Points: each completed quiz contributes its score (0-100).
+    const points = subs.reduce((a, s) => a + s.score, 0);
+
+    // Achievements earned from real activity.
+    const achievements = [
+      { key: "explorer", earned: completed >= 1, points: 100 },
+      { key: "taskMaster", earned: completed >= 5, points: 200 },
+      { key: "topStudent", earned: completed >= 1 && avg >= 90, points: 500 },
+    ].filter((a) => a.earned);
+
     return NextResponse.json({
       role: "student",
       groups: groupIds.length,
       assigned,
-      completed: subs.length,
+      completed,
       avgScore: avg,
+      points,
+      achievements,
     });
   }
 
@@ -54,14 +67,35 @@ export async function GET() {
     : 0;
 
   const subs = groupIds.length
-    ? await prisma.submission.findMany({
+    ? await prisma.submission.count({
         where: { assignment: { groupId: { in: groupIds } } },
-        select: { score: true },
+      })
+    : 0;
+  const scored = groupIds.length
+    ? await prisma.submission.aggregate({
+        where: { assignment: { groupId: { in: groupIds } } },
+        _avg: { score: true },
+      })
+    : null;
+  const avg = scored?._avg.score != null ? Math.round(scored._avg.score) : 0;
+
+  // Recent materials for the "recent lessons" widget.
+  const recentMaterials = await prisma.material.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+    take: 4,
+    select: { id: true, kind: true, topic: true, subject: true, createdAt: true },
+  });
+
+  // Assignment status: how many expected quiz submissions are in vs. outstanding.
+  const quizAssignments = groupIds.length
+    ? await prisma.assignment.findMany({
+        where: { groupId: { in: groupIds }, material: { kind: "quiz" } },
+        select: { group: { select: { _count: { select: { members: true } } } } },
       })
     : [];
-  const avg = subs.length
-    ? Math.round(subs.reduce((a, s) => a + s.score, 0) / subs.length)
-    : 0;
+  const expected = quizAssignments.reduce((a, x) => a + x.group._count.members, 0);
+  const pending = Math.max(expected - subs, 0);
 
   return NextResponse.json({
     role: "teacher",
@@ -70,5 +104,8 @@ export async function GET() {
     materials,
     assignments,
     avgScore: avg,
+    submissions: subs,
+    status: { submitted: subs, pending },
+    recentMaterials,
   });
 }

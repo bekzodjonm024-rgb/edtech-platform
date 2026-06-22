@@ -78,6 +78,7 @@ export type DashDict = {
   };
   dist: Record<"excellent" | "good" | "satisfactory" | "poor", string>;
   ach: Record<"explorer" | "taskMaster" | "topStudent", string>;
+  empty: { noMaterials: string; noSubmissions: string };
 };
 
 export const dashDictionaries: Record<Locale, DashDict> = {
@@ -184,6 +185,10 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       taskMaster: "Topshiriq ustasi",
       topStudent: "A'lochi",
     },
+    empty: {
+      noMaterials: "Hali material yaratilmagan",
+      noSubmissions: "Hali topshiriq topshirilmagan",
+    },
   },
   en: {
     sidebarTeacher: {
@@ -288,6 +293,10 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       taskMaster: "Task master",
       topStudent: "Top student",
     },
+    empty: {
+      noMaterials: "No materials created yet",
+      noSubmissions: "No submissions yet",
+    },
   },
   ru: {
     sidebarTeacher: {
@@ -391,6 +400,10 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       explorer: "Исследователь",
       taskMaster: "Мастер заданий",
       topStudent: "Отличник",
+    },
+    empty: {
+      noMaterials: "Материалы ещё не созданы",
+      noSubmissions: "Пока нет сдач",
     },
   },
 };
