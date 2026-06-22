@@ -40,6 +40,7 @@ export async function GET(
     select: {
       id: true,
       createdAt: true,
+      dueAt: true,
       material: { select: { id: true, kind: true, topic: true, subject: true, data: true } },
     },
   });
@@ -58,8 +59,13 @@ export async function POST(
   if (!a.ok) return NextResponse.json({ error: "not_found" }, { status: 404 });
   if (!a.isOwner) return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const { materialId } = await req.json();
+  const { materialId, dueAt } = await req.json();
   if (!materialId) return NextResponse.json({ error: "missing_material" }, { status: 400 });
+  let due: Date | null = null;
+  if (dueAt) {
+    const d = new Date(dueAt);
+    if (!isNaN(d.getTime())) due = d;
+  }
 
   // The material must belong to this teacher.
   const material = await prisma.material.findFirst({
@@ -73,7 +79,7 @@ export async function POST(
   });
   if (existing) return NextResponse.json({ error: "already_assigned" }, { status: 409 });
 
-  await prisma.assignment.create({ data: { groupId: id, materialId } });
+  await prisma.assignment.create({ data: { groupId: id, materialId, dueAt: due } });
   return NextResponse.json({ ok: true });
 }
 

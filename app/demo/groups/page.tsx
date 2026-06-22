@@ -21,12 +21,13 @@ import {
   ChevronUp,
   ListChecks,
   Presentation,
-  FileText,
   Plus as PlusIcon,
+  CalendarClock,
 } from "lucide-react";
 
 type Assignment = {
   id: string;
+  dueAt?: string | null;
   material: { id: string; kind: string; topic: string; subject: string | null; data: string };
 };
 type MyMaterial = { id: string; kind: string; topic: string; subject: string | null };
@@ -261,6 +262,7 @@ function TeacherGroupCard({
   const [assignments, setAssignments] = useState<Assignment[] | null>(null);
   const [materials, setMaterials] = useState<MyMaterial[]>([]);
   const [picked, setPicked] = useState("");
+  const [due, setDue] = useState("");
 
   const loadAssignments = async () => {
     const res = await fetch(`/api/groups/${grp.id}/assignments`, { cache: "no-store" });
@@ -290,9 +292,10 @@ function TeacherGroupCard({
     await fetch(`/api/groups/${grp.id}/assignments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ materialId: picked }),
+      body: JSON.stringify({ materialId: picked, dueAt: due || null }),
     });
     setPicked("");
+    setDue("");
     await loadAssignments();
   };
 
@@ -409,6 +412,13 @@ function TeacherGroupCard({
                     </option>
                   ))}
                 </select>
+                <input
+                  type="datetime-local"
+                  value={due}
+                  onChange={(e) => setDue(e.target.value)}
+                  title={g.optionalDue}
+                  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-800"
+                />
                 <Button size="sm" onClick={assign} disabled={!picked}>
                   <PlusIcon className="h-4 w-4" /> {g.assign}
                 </Button>
@@ -451,6 +461,7 @@ function AssignmentRow({
   onUnassign: () => void;
 }) {
   const isQuiz = a.material.kind === "quiz";
+  const isOverdue = a.dueAt ? new Date(a.dueAt).getTime() < Date.now() : false;
   const [open, setOpen] = useState(false);
   const [data, setData] = useState<{ count: number; avg: number; submissions: SubmissionRow[] } | null>(null);
 
@@ -478,6 +489,12 @@ function AssignmentRow({
           <div className="text-xs text-slate-400">
             {isQuiz ? g.kindQuiz : g.kindPresentation}
             {a.material.subject ? ` · ${a.material.subject}` : ""}
+            {a.dueAt && (
+              <span className={isOverdue ? "text-rose-500" : ""}>
+                {" · "}
+                {isOverdue ? g.overdue : g.due}: {new Date(a.dueAt).toLocaleDateString()}
+              </span>
+            )}
           </div>
         </div>
         {isQuiz && (
@@ -536,7 +553,6 @@ function AssignmentRow({
 function StudentGroupCard({ grp, g }: { grp: Group; g: (typeof groupStrings)["uz"] }) {
   const router = useRouter();
   const [assignments, setAssignments] = useState<Assignment[] | null>(null);
-  const [openPres, setOpenPres] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/groups/${grp.id}/assignments`, { cache: "no-store" })
@@ -556,15 +572,6 @@ function StudentGroupCard({ grp, g }: { grp: Group; g: (typeof groupStrings)["uz
       /* ignore */
     }
     router.push("/demo/quiz");
-  };
-
-  const slidesOf = (a: Assignment): { title: string }[] => {
-    try {
-      const d = JSON.parse(a.material.data);
-      return Array.isArray(d) ? d : [];
-    } catch {
-      return [];
-    }
   };
 
   return (
@@ -625,24 +632,16 @@ function StudentGroupCard({ grp, g }: { grp: Group; g: (typeof groupStrings)["uz
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => setOpenPres(openPres === a.id ? null : a.id)}
+                      onClick={() => router.push(`/demo/view/${a.material.id}`)}
                     >
                       {g.open}
                     </Button>
                   )}
                 </div>
-                {openPres === a.id && (
-                  <ul className="mt-2 space-y-1 pl-11">
-                    {slidesOf(a).slice(0, 8).map((s, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"
-                      >
-                        <FileText className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-                        <span className="truncate">{s.title}</span>
-                      </li>
-                    ))}
-                  </ul>
+                {a.dueAt && (
+                  <div className="mt-1 pl-11 text-xs text-slate-400">
+                    {g.due}: {new Date(a.dueAt).toLocaleString()}
+                  </div>
                 )}
               </div>
             ))}

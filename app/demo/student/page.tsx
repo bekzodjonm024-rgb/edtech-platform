@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 import { useAuth } from "@/lib/auth/context";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
@@ -17,6 +17,34 @@ export default function StudentDashboard() {
   const { user } = useAuth();
   const [submitted] = useState<number[]>([]);
   const firstName = user?.name?.split(" ")[0] ?? "";
+
+  const [stats, setStats] = useState<{
+    groups: number;
+    assigned: number;
+    completed: number;
+    avgScore: number;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stats", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((s) => setStats(s))
+      .catch(() => {});
+  }, []);
+
+  const cards = stats
+    ? [
+        { label: d.stat.assignments, value: String(stats.assigned), color: "violet", icon: "clipboard" },
+        { label: d.stat.completed, value: String(stats.completed), color: "emerald", icon: "checkCircle" },
+        { label: d.stat.avgScore, value: `${stats.avgScore}%`, color: "blue", icon: "target" },
+        { label: d.stat.points, value: "890", color: "amber", icon: "trophy" },
+      ]
+    : studentStats.map((s) => ({
+        label: d.stat[s.key as keyof typeof d.stat],
+        value: s.value,
+        color: s.color,
+        icon: s.icon,
+      }));
 
   const overall = Math.round(
     studentAssignments.reduce(
@@ -34,14 +62,8 @@ export default function StudentDashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {studentStats.map((s) => (
-          <StatCard
-            key={s.key}
-            label={d.stat[s.key as keyof typeof d.stat]}
-            value={s.value}
-            color={s.color}
-            icon={s.icon}
-          />
+        {cards.map((s) => (
+          <StatCard key={s.label} label={s.label} value={s.value} color={s.color} icon={s.icon} />
         ))}
       </div>
 

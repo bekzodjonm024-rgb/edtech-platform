@@ -66,6 +66,7 @@ model Assignment {
   group       Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
   material    Material     @relation(fields: [materialId], references: [id], onDelete: Cascade)
   submissions Submission[]
+  dueAt       DateTime?
   createdAt   DateTime     @default(now())
 
   @@unique([groupId, materialId])

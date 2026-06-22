@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -37,8 +38,38 @@ const qcIcons: Record<string, LucideIcon> = {
   share2: Share2,
 };
 
+type TeacherStats = {
+  groups: number;
+  students: number;
+  materials: number;
+  assignments: number;
+  avgScore: number;
+};
+
 export default function TeacherDashboard() {
   const { d } = useI18n();
+  const [stats, setStats] = useState<TeacherStats | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stats", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((s) => setStats(s))
+      .catch(() => {});
+  }, []);
+
+  const cards = stats
+    ? [
+        { label: d.sidebarTeacher.classes, value: String(stats.groups), color: "violet", icon: "users" },
+        { label: d.stat.students, value: String(stats.students), color: "emerald", icon: "users" },
+        { label: d.stat.assignments, value: String(stats.assignments), color: "blue", icon: "clipboard" },
+        { label: d.stat.avgScore, value: `${stats.avgScore}%`, color: "amber", icon: "target" },
+      ]
+    : teacherStats.map((s) => ({
+        label: d.stat[s.key as keyof typeof d.stat],
+        value: s.value,
+        color: s.color,
+        icon: s.icon,
+      }));
 
   return (
     <DashboardShell role="teacher" userName="Malika Ismoilova" userRole={d.teacherRole}>
@@ -49,15 +80,8 @@ export default function TeacherDashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {teacherStats.map((s) => (
-          <StatCard
-            key={s.key}
-            label={d.stat[s.key as keyof typeof d.stat]}
-            value={s.value}
-            delta={s.delta}
-            color={s.color}
-            icon={s.icon}
-          />
+        {cards.map((s) => (
+          <StatCard key={s.label} label={s.label} value={s.value} color={s.color} icon={s.icon} />
         ))}
       </div>
 

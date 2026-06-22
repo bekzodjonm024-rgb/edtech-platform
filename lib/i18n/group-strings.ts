@@ -45,6 +45,9 @@ export const groupStrings: Record<Locale, {
   results: string;
   avg: string;
   noSubmissions: string;
+  due: string;
+  overdue: string;
+  optionalDue: string;
 }> = {
   uz: {
     title: "Guruhlar",
@@ -91,6 +94,9 @@ export const groupStrings: Record<Locale, {
     results: "Natijalar",
     avg: "O'rtacha",
     noSubmissions: "Hali hech kim yechmagan",
+    due: "Muddat",
+    overdue: "Muddati o'tdi",
+    optionalDue: "Muddat (ixtiyoriy)",
   },
   en: {
     title: "Groups",
@@ -137,6 +143,9 @@ export const groupStrings: Record<Locale, {
     results: "Results",
     avg: "Average",
     noSubmissions: "No one has taken it yet",
+    due: "Due",
+    overdue: "Overdue",
+    optionalDue: "Due date (optional)",
   },
   ru: {
     title: "Группы",
@@ -183,5 +192,8 @@ export const groupStrings: Record<Locale, {
     results: "Результаты",
     avg: "Средний",
     noSubmissions: "Ещё никто не прошёл",
+    due: "Срок",
+    overdue: "Просрочено",
+    optionalDue: "Срок (необязательно)",
   },
 };
