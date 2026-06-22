@@ -15,6 +15,7 @@ export default function QuizPage() {
   const { s } = useI18n();
   const [questions, setQuestions] = useState(sampleQuiz);
   const [quizTitle, setQuizTitle] = useState<string | null>(null);
+  const [assignmentId, setAssignmentId] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(sampleQuiz.length).fill(null)
@@ -32,6 +33,7 @@ export default function QuizPage() {
         setAnswers(Array(data.questions.length).fill(null));
         setCurrent(0);
         if (typeof data.topic === "string") setQuizTitle(data.topic);
+        if (typeof data.assignmentId === "string") setAssignmentId(data.assignmentId);
       }
     } catch {
       /* ignore malformed storage */
@@ -48,6 +50,22 @@ export default function QuizPage() {
   const incorrect = answers.filter((a, i) => a !== null && a !== questions[i].answer).length;
   const skipped = answers.filter((a) => a === null).length;
   const score = Math.round((correct / questions.length) * 100);
+
+  // When the quiz came from a group assignment, save the result for the teacher.
+  const submitQuiz = async () => {
+    setSubmitted(true);
+    if (assignmentId) {
+      try {
+        await fetch("/api/submissions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ assignmentId, score, correct, total: questions.length }),
+        });
+      } catch {
+        /* ignore */
+      }
+    }
+  };
 
   /* ---------- Result screen ---------- */
   if (submitted) {
@@ -164,7 +182,7 @@ export default function QuizPage() {
                 <ChevronLeft className="h-4 w-4" /> {s.quiz.prev}
               </Button>
               {current === questions.length - 1 ? (
-                <Button size="sm" onClick={() => setSubmitted(true)}>
+                <Button size="sm" onClick={submitQuiz}>
                   {s.quiz.submit}
                 </Button>
               ) : (
@@ -214,7 +232,7 @@ export default function QuizPage() {
               </li>
             </ul>
 
-            <Button className="mt-5 w-full" onClick={() => setSubmitted(true)}>
+            <Button className="mt-5 w-full" onClick={submitQuiz}>
               {s.quiz.submit}
             </Button>
           </Card>

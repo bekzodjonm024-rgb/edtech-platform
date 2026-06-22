@@ -165,11 +165,33 @@ export default function GeneratePage() {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">{d.gen.subject}</label>
-              <select value={subject} onChange={(e) => setSubject(e.target.value)} className={field}>
-                {["Molekulyar biologiya", "Oliy matematika", "Iqtisodiyot", "Chet tili", "Fizika", "Organik kimyo"].map((s) => (
-                  <option key={s} value={s}>{s}</option>
+              <input
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                list="subject-suggestions"
+                placeholder="Masalan: Diskret matematika"
+                className={field}
+              />
+              <datalist id="subject-suggestions">
+                {[
+                  "Molekulyar biologiya",
+                  "Oliy matematika",
+                  "Diskret matematika",
+                  "Iqtisodiyot nazariyasi",
+                  "Mikroiqtisodiyot",
+                  "Dasturlash asoslari",
+                  "Ma'lumotlar tuzilmalari",
+                  "Fizika",
+                  "Organik kimyo",
+                  "Mikrobiologiya",
+                  "Konstitutsiyaviy huquq",
+                  "Falsafa",
+                  "Chet tili",
+                  "Pedagogika",
+                ].map((s) => (
+                  <option key={s} value={s} />
                 ))}
-              </select>
+              </datalist>
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium">{d.gen.topic}</label>

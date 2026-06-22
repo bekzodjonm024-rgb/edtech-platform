@@ -6,27 +6,82 @@ datasource db {
   provider  = "postgresql"
   // Pooled connection (Neon `-pooler` host) — used at runtime on serverless.
   url       = env("DATABASE_URL")
-  // Direct connection — used by `prisma db push` / migrations (DDL).
-  directUrl = env("DIRECT_URL")
+  // Direct (unpooled) connection — used by `prisma db push` / migrations (DDL).
+  // Matches the variable name the Vercel Neon integration injects.
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String
+  role        String       @default("teacher") // "teacher" | "student"
+  password    String
+  createdAt   DateTime     @default(now())
+  materials   Material[]
+  ownedGroups Group[]      @relation("TeacherGroups")
+  memberships Membership[] @relation("StudentMemberships")
+  submissions Submission[] @relation("StudentSubmissions")
+}
+
+model Group {
+  id        String       @id @default(cuid())
   name      String
-  role      String     @default("teacher") // "teacher" | "student"
-  password  String
-  createdAt DateTime   @default(now())
-  materials Material[]
+  subject   String?
+  code      String       @unique
+  teacherId String
+  teacher     User         @relation("TeacherGroups", fields: [teacherId], references: [id], onDelete: Cascade)
+  members     Membership[]
+  assignments Assignment[]
+  createdAt   DateTime     @default(now())
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  groupId   String
+  studentId String
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  student   User     @relation("StudentMemberships", fields: [studentId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+
+  @@unique([groupId, studentId])
 }
 
 model Material {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  kind      String // "presentation" | "quiz"
-  topic     String
-  subject   String?
-  data      String // JSON-encoded payload
-  createdAt DateTime @default(now())
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind        String // "presentation" | "quiz"
+  topic       String
+  subject     String?
+  data        String // JSON-encoded payload
+  createdAt   DateTime     @default(now())
+  assignments Assignment[]
+}
+
+model Assignment {
+  id          String       @id @default(cuid())
+  groupId     String
+  materialId  String
+  group       Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  material    Material     @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+  createdAt   DateTime     @default(now())
+
+  @@unique([groupId, materialId])
+}
+
+model Submission {
+  id           String     @id @default(cuid())
+  assignmentId String
+  studentId    String
+  score        Int // 0-100
+  correct      Int
+  total        Int
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      User       @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([assignmentId, studentId])
 }

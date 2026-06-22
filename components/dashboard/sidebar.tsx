@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useI18n } from "@/lib/i18n/context";
 import { authStrings } from "@/lib/i18n/auth-strings";
+import { groupStrings } from "@/lib/i18n/group-strings";
 import { cn } from "@/lib/utils";
 import {
   GraduationCap,
@@ -29,13 +30,14 @@ export function Sidebar({ role, open }: { role: Role; open: boolean }) {
   const { d, locale } = useI18n();
   const pathname = usePathname();
   const materialsLabel = authStrings[locale].myMaterials;
+  const groupsLabel = groupStrings[locale].title;
 
   const teacherItems = [
     { icon: LayoutDashboard, label: d.sidebarTeacher.home, href: "/demo/teacher" },
     { icon: BookOpen, label: d.sidebarTeacher.lessons, href: "/demo/lesson" },
     { icon: FolderOpen, label: d.sidebarTeacher.topics, href: "/demo/lesson" },
     { icon: ClipboardList, label: d.sidebarTeacher.assignments, href: "/demo/lesson" },
-    { icon: Users, label: d.sidebarTeacher.classes, href: "/demo/teacher" },
+    { icon: Users, label: groupsLabel, href: "/demo/groups" },
     { icon: Sparkles, label: d.gen.title, href: "/demo/generate" },
     { icon: Library, label: d.sidebarTeacher.library, href: "/demo/teacher" },
     { icon: Bot, label: d.sidebarTeacher.aiAssistant, href: "/demo/teacher" },
@@ -47,6 +49,7 @@ export function Sidebar({ role, open }: { role: Role; open: boolean }) {
 
   const studentItems = [
     { icon: LayoutDashboard, label: d.sidebarStudent.home, href: "/demo/student" },
+    { icon: Users, label: groupsLabel, href: "/demo/groups" },
     { icon: ClipboardList, label: d.sidebarStudent.assignments, href: "/demo/student" },
     { icon: BookOpen, label: d.sidebarStudent.lessons, href: "/demo/student" },
     { icon: Library, label: d.sidebarStudent.library, href: "/demo/student" },
