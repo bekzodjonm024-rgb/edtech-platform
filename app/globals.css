@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #ffffff;
+  --fg: #0f172a;
+}
+
+.dark {
+  --bg: #0f172a;
+  --fg: #e2e8f0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin, themed scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.4);
+  border-radius: 999px;
+}

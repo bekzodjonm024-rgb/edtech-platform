@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Pooled connection (Neon `-pooler` host) — used at runtime on serverless.
+  url       = env("DATABASE_URL")
+  // Direct connection — used by `prisma db push` / migrations (DDL).
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String
+  role      String     @default("teacher") // "teacher" | "student"
+  password  String
+  createdAt DateTime   @default(now())
+  materials Material[]
+}
+
+model Material {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String // "presentation" | "quiz"
+  topic     String
+  subject   String?
+  data      String // JSON-encoded payload
+  createdAt DateTime @default(now())
+}
