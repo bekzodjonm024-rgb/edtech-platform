@@ -11,7 +11,6 @@ export const localeNames: Record<Locale, string> = {
 type Dict = {
   nav: {
     features: string;
-    demo: string;
     pricing: string;
     about: string;
     launch: string;
@@ -106,7 +105,6 @@ export const dictionaries: Record<Locale, Dict> = {
   uz: {
     nav: {
       features: "Imkoniyatlar",
-      demo: "Demo",
       pricing: "Narxlar",
       about: "Loyiha haqida",
       launch: "Boshlash",
@@ -191,7 +189,7 @@ export const dictionaries: Record<Locale, Dict> = {
       title: "Rivojlanish rejasi",
       subtitle: "3 yillik aniq yo'l xaritasi.",
       phases: [
-        { period: "2026 Q1–Q2", title: "MVP ishga tushishi", desc: "Landing, demo va asosiy generatorlar." },
+        { period: "2026 Q1–Q2", title: "MVP ishga tushishi", desc: "Landing va asosiy generatorlar." },
         { period: "2026 Q3–Q4", title: "Real AI integratsiya", desc: "Backend, baza va Claude API ulanishi." },
         { period: "2027", title: "Universitetlar uchun", desc: "Guruh boshqaruvi, reyting jurnali va hisobotlar." },
         { period: "2028", title: "Mobil va miqyos", desc: "Mobil ilova va xalqaro kengayish." },
@@ -199,7 +197,7 @@ export const dictionaries: Record<Locale, Dict> = {
     },
     cta: {
       title: "Ta'limni birga o'zgartiramiz",
-      subtitle: "Demoni hoziroq sinab ko'ring — ro'yxatdan o'tish shart emas.",
+      subtitle: "Bepul ro'yxatdan o'ting va bugundan AI bilan dars yaratishni boshlang.",
       button: "Boshlash",
     },
     footer: {
@@ -240,7 +238,6 @@ export const dictionaries: Record<Locale, Dict> = {
   en: {
     nav: {
       features: "Features",
-      demo: "Demo",
       pricing: "Pricing",
       about: "About",
       launch: "Get started",
@@ -325,7 +322,7 @@ export const dictionaries: Record<Locale, Dict> = {
       title: "Roadmap",
       subtitle: "A clear three-year path.",
       phases: [
-        { period: "2026 Q1–Q2", title: "MVP launch", desc: "Landing, demo and core generators." },
+        { period: "2026 Q1–Q2", title: "MVP launch", desc: "Landing and core generators." },
         { period: "2026 Q3–Q4", title: "Real AI integration", desc: "Backend, database and Claude API." },
         { period: "2027", title: "For universities", desc: "Group management, gradebook and reports." },
         { period: "2028", title: "Mobile and scale", desc: "Mobile app and international expansion." },
@@ -333,7 +330,7 @@ export const dictionaries: Record<Locale, Dict> = {
     },
     cta: {
       title: "Let's reshape education together",
-      subtitle: "Try the demo right now — no sign-up needed.",
+      subtitle: "Sign up free and start creating AI-powered lessons today.",
       button: "Get started",
     },
     footer: {
@@ -374,7 +371,6 @@ export const dictionaries: Record<Locale, Dict> = {
   ru: {
     nav: {
       features: "Возможности",
-      demo: "Демо",
       pricing: "Цены",
       about: "О проекте",
       launch: "Начать",
@@ -459,7 +455,7 @@ export const dictionaries: Record<Locale, Dict> = {
       title: "Дорожная карта",
       subtitle: "Чёткий трёхлетний путь.",
       phases: [
-        { period: "2026 Q1–Q2", title: "Запуск MVP", desc: "Лендинг, демо и базовые генераторы." },
+        { period: "2026 Q1–Q2", title: "Запуск MVP", desc: "Лендинг и базовые генераторы." },
         { period: "2026 Q3–Q4", title: "Реальная интеграция ИИ", desc: "Бэкенд, база и Claude API." },
         { period: "2027", title: "Для вузов", desc: "Управление группой, рейтинговый журнал и отчёты." },
         { period: "2028", title: "Мобайл и масштаб", desc: "Мобильное приложение и выход за рубеж." },
@@ -467,7 +463,7 @@ export const dictionaries: Record<Locale, Dict> = {
     },
     cta: {
       title: "Изменим образование вместе",
-      subtitle: "Попробуйте демо прямо сейчас — без регистрации.",
+      subtitle: "Зарегистрируйтесь бесплатно и начните создавать уроки с ИИ уже сегодня.",
       button: "Начать",
     },
     footer: {
