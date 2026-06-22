@@ -74,6 +74,16 @@ model Assignment {
   @@unique([groupId, materialId])
 }
 
+model TelegramLogin {
+  token     String    @id
+  role      String    @default("student")
+  tgId      String?
+  userId    String?
+  authedAt  DateTime?
+  consumed  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
 model Submission {
   id           String     @id @default(cuid())
   assignmentId String

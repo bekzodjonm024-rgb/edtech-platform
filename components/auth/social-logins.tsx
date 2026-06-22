@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 
 type Providers = { google: boolean; telegram: boolean; telegramBot: string | null };
@@ -16,18 +16,25 @@ function GoogleIcon() {
   );
 }
 
+function TelegramIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="#229ED9"
+        d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0Zm5.56 8.16-1.86 8.76c-.14.62-.5.77-1.02.48l-2.82-2.08-1.36 1.31c-.15.15-.28.28-.56.28l.2-2.86 5.2-4.7c.23-.2-.05-.31-.35-.11l-6.43 4.05-2.77-.87c-.6-.19-.62-.6.13-.89l10.83-4.17c.5-.18.94.12.78.81Z"
+      />
+    </svg>
+  );
+}
+
 export function SocialLogins({ role = "student" }: { role?: "teacher" | "student" }) {
   const { locale } = useI18n();
   const [providers, setProviders] = useState<Providers | null>(null);
-  const tgRef = useRef<HTMLDivElement>(null);
 
   const t = {
     or: { uz: "yoki", en: "or", ru: "или" }[locale],
-    google: {
-      uz: "Google orqali kirish",
-      en: "Continue with Google",
-      ru: "Войти через Google",
-    }[locale],
+    google: { uz: "Google orqali kirish", en: "Continue with Google", ru: "Войти через Google" }[locale],
+    telegram: { uz: "Telegram orqali kirish", en: "Continue with Telegram", ru: "Войти через Telegram" }[locale],
   };
 
   useEffect(() => {
@@ -37,22 +44,10 @@ export function SocialLogins({ role = "student" }: { role?: "teacher" | "student
       .catch(() => setProviders({ google: false, telegram: false, telegramBot: null }));
   }, []);
 
-  useEffect(() => {
-    const el = tgRef.current;
-    if (!el || !providers?.telegram || !providers.telegramBot) return;
-    el.innerHTML = "";
-    const script = document.createElement("script");
-    script.src = "https://telegram.org/js/telegram-widget.js?22";
-    script.async = true;
-    script.setAttribute("data-telegram-login", providers.telegramBot);
-    script.setAttribute("data-size", "large");
-    script.setAttribute("data-radius", "10");
-    script.setAttribute("data-auth-url", `/api/auth/telegram/callback?role=${role}`);
-    script.setAttribute("data-request-access", "write");
-    el.appendChild(script);
-  }, [providers, role]);
-
   if (!providers || (!providers.google && !providers.telegram)) return null;
+
+  const btn =
+    "flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800";
 
   return (
     <div className="mt-5">
@@ -64,16 +59,16 @@ export function SocialLogins({ role = "student" }: { role?: "teacher" | "student
       </div>
       <div className="space-y-2">
         {providers.google && (
-          <a
-            href={`/api/auth/google?role=${role}`}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 text-sm font-medium transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800"
-          >
+          <a href={`/api/auth/google?role=${role}`} className={btn}>
             <GoogleIcon />
             {t.google}
           </a>
         )}
-        {providers.telegram && providers.telegramBot && (
-          <div ref={tgRef} className="flex justify-center" />
+        {providers.telegram && (
+          <a href={`/api/auth/telegram/start?role=${role}`} className={btn}>
+            <TelegramIcon />
+            {t.telegram}
+          </a>
         )}
       </div>
     </div>
