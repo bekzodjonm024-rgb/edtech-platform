@@ -115,6 +115,28 @@ export type DashDict = {
     thLast: string;
     noData: string;
   };
+  settings: {
+    title: string;
+    subtitle: string;
+    profile: string;
+    name: string;
+    email: string;
+    emailHint: string;
+    save: string;
+    saving: string;
+    saved: string;
+    security: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+    changePassword: string;
+    setPassword: string;
+    oauthHint: string;
+    errShort: string;
+    errMismatch: string;
+    errWrong: string;
+    pwSaved: string;
+  };
 };
 
 export const dashDictionaries: Record<Locale, DashDict> = {
@@ -261,6 +283,28 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       thLast: "Oxirgi faollik",
       noData: "Hali ma'lumot yo'q. Talabalar topshiriqlarni bajargach, tahlil shu yerda chiqadi.",
     },
+    settings: {
+      title: "Sozlamalar",
+      subtitle: "Profil va xavfsizlik",
+      profile: "Profil",
+      name: "Ism",
+      email: "Email",
+      emailHint: "Email o'zgartirib bo'lmaydi",
+      save: "Saqlash",
+      saving: "Saqlanmoqda...",
+      saved: "Saqlandi ✓",
+      security: "Xavfsizlik",
+      currentPassword: "Joriy parol",
+      newPassword: "Yangi parol",
+      confirmPassword: "Parolni tasdiqlang",
+      changePassword: "Parolni o'zgartirish",
+      setPassword: "Parol o'rnatish",
+      oauthHint: "Siz ijtimoiy tarmoq orqali kirgansiz. Parol o'rnatib, email bilan ham kira olasiz.",
+      errShort: "Parol kamida 6 ta belgidan iborat bo'lsin",
+      errMismatch: "Parollar mos kelmadi",
+      errWrong: "Joriy parol noto'g'ri",
+      pwSaved: "Parol yangilandi ✓",
+    },
   },
   en: {
     sidebarTeacher: {
@@ -405,6 +449,28 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       thLast: "Last active",
       noData: "No data yet. Once students complete assignments, analytics will appear here.",
     },
+    settings: {
+      title: "Settings",
+      subtitle: "Profile and security",
+      profile: "Profile",
+      name: "Name",
+      email: "Email",
+      emailHint: "Email can't be changed",
+      save: "Save",
+      saving: "Saving...",
+      saved: "Saved ✓",
+      security: "Security",
+      currentPassword: "Current password",
+      newPassword: "New password",
+      confirmPassword: "Confirm password",
+      changePassword: "Change password",
+      setPassword: "Set password",
+      oauthHint: "You signed in via a social account. Set a password to also log in with email.",
+      errShort: "Password must be at least 6 characters",
+      errMismatch: "Passwords don't match",
+      errWrong: "Current password is incorrect",
+      pwSaved: "Password updated ✓",
+    },
   },
   ru: {
     sidebarTeacher: {
@@ -548,6 +614,28 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       thAvg: "Средний",
       thLast: "Активность",
       noData: "Данных пока нет. Когда студенты выполнят задания, аналитика появится здесь.",
+    },
+    settings: {
+      title: "Настройки",
+      subtitle: "Профиль и безопасность",
+      profile: "Профиль",
+      name: "Имя",
+      email: "Email",
+      emailHint: "Email нельзя изменить",
+      save: "Сохранить",
+      saving: "Сохранение...",
+      saved: "Сохранено ✓",
+      security: "Безопасность",
+      currentPassword: "Текущий пароль",
+      newPassword: "Новый пароль",
+      confirmPassword: "Подтвердите пароль",
+      changePassword: "Сменить пароль",
+      setPassword: "Установить пароль",
+      oauthHint: "Вы вошли через соцсеть. Установите пароль, чтобы входить и по email.",
+      errShort: "Пароль должен быть не менее 6 символов",
+      errMismatch: "Пароли не совпадают",
+      errWrong: "Текущий пароль неверный",
+      pwSaved: "Пароль обновлён ✓",
     },
   },
 };

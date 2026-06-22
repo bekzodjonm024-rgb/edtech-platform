@@ -46,7 +46,7 @@ export function Sidebar({ role, open }: { role: Role; open: boolean }) {
     { icon: TrendingUp, label: d.analytics.title, href: "/demo/analytics" },
     { icon: FolderArchive, label: materialsLabel, href: "/demo/materials" },
     { icon: MessageSquare, label: d.sidebarTeacher.messages, href: "/demo/teacher" },
-    { icon: Settings, label: d.sidebarTeacher.settings, href: "/demo/teacher" },
+    { icon: Settings, label: d.sidebarTeacher.settings, href: "/demo/settings" },
   ];
 
   const studentItems = [
@@ -59,7 +59,7 @@ export function Sidebar({ role, open }: { role: Role; open: boolean }) {
     { icon: ListChecks, label: d.sidebarStudent.tests, href: "/demo/quiz" },
     { icon: Trophy, label: d.sidebarStudent.achievements, href: "/demo/student" },
     { icon: FolderArchive, label: materialsLabel, href: "/demo/materials" },
-    { icon: Settings, label: d.sidebarStudent.settings, href: "/demo/student" },
+    { icon: Settings, label: d.sidebarStudent.settings, href: "/demo/settings" },
   ];
 
   const items = role === "teacher" ? teacherItems : studentItems;
