@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const limited = rateLimitResponse(req, "auth:password", { limit: 10, windowMs: 60_000, id: user.id });
+  const limited = await rateLimitResponse(req, "auth:password", { limit: 10, windowMs: 60_000, id: user.id });
   if (limited) return limited;
 
   const { data, error } = await parseJson(req, schema);

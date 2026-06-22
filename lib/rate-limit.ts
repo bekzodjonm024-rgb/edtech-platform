@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
 
 /**
- * In-memory sliding-window rate limiter.
+ * Durable, cross-instance rate limiter backed by Postgres (fixed window).
  *
- * ⚠️ State lives per serverless instance, so on Vercel this is *best-effort*:
- * an attacker spread across many warm instances gets a higher effective limit.
- * It still blunts bursts and brute-force from a single connection and protects
- * the AI routes from runaway cost. When durable, cross-instance limits are
- * needed, swap the store below for Upstash Redis (`@upstash/ratelimit`) — the
- * `rateLimit()` / `rateLimitResponse()` signatures can stay the same.
+ * Why not in-memory: on Vercel each serverless instance has its own memory, so a
+ * Map-based limiter doesn't see requests handled by sibling instances and never
+ * fires reliably. A shared store (the DB we already have) makes the limit real.
+ * It costs one indexed upsert per check — fine for the auth / AI routes it guards.
+ *
+ * Fails OPEN: if the DB is briefly unavailable we let the request through rather
+ * than lock everyone out. Swap to Upstash Redis if DB load ever becomes a concern
+ * — the signatures here can stay the same.
  */
-
-type Bucket = number[]; // request timestamps (ms), within the current window
-const buckets = new Map<string, Bucket>();
 
 export function clientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
@@ -22,31 +22,39 @@ export function clientIp(req: Request): string {
 
 export type RateLimitResult = { ok: boolean; retryAfter: number };
 
-export function rateLimit(
+export async function rateLimit(
   key: string,
   opts: { limit: number; windowMs: number },
-): RateLimitResult {
+): Promise<RateLimitResult> {
   const now = Date.now();
-  const windowStart = now - opts.windowMs;
-  const hits = (buckets.get(key) || []).filter((t) => t > windowStart);
+  const bucket = Math.floor(now / opts.windowMs);
+  const rowKey = `${key}:${bucket}`;
+  const expires = new Date((bucket + 1) * opts.windowMs);
 
-  if (hits.length >= opts.limit) {
-    buckets.set(key, hits);
-    const retryAfter = Math.max(1, Math.ceil((hits[0]! + opts.windowMs - now) / 1000));
-    return { ok: false, retryAfter };
-  }
+  try {
+    // Atomic INSERT ... ON CONFLICT DO UPDATE count = count + 1, returning the
+    // post-increment count — so concurrent requests can't undercount.
+    const row = await prisma.rateLimit.upsert({
+      where: { key: rowKey },
+      create: { key: rowKey, count: 1, expires },
+      update: { count: { increment: 1 } },
+    });
 
-  hits.push(now);
-  buckets.set(key, hits);
-  if (buckets.size > 5000) sweep(windowStart);
-  return { ok: true, retryAfter: 0 };
-}
+    if (row.count > opts.limit) {
+      const retryAfter = Math.max(1, Math.ceil((expires.getTime() - now) / 1000));
+      return { ok: false, retryAfter };
+    }
 
-function sweep(windowStart: number) {
-  for (const [k, v] of buckets) {
-    const fresh = v.filter((t) => t > windowStart);
-    if (fresh.length === 0) buckets.delete(k);
-    else buckets.set(k, fresh);
+    // Opportunistic cleanup of expired rows (~1% of allowed requests).
+    if (Math.random() < 0.01) {
+      prisma.rateLimit
+        .deleteMany({ where: { expires: { lt: new Date() } } })
+        .catch(() => {});
+    }
+    return { ok: true, retryAfter: 0 };
+  } catch {
+    // Fail open — never block legitimate users because the limiter store hiccuped.
+    return { ok: true, retryAfter: 0 };
   }
 }
 
@@ -55,13 +63,13 @@ function sweep(windowStart: number) {
  * otherwise `null`. Keyed by `name` + (`opts.id` ?? client IP) — pass a user id
  * for authenticated routes so the limit follows the account, not the IP.
  */
-export function rateLimitResponse(
+export async function rateLimitResponse(
   req: Request,
   name: string,
   opts: { limit: number; windowMs: number; id?: string },
-): NextResponse | null {
+): Promise<NextResponse | null> {
   const subject = opts.id || clientIp(req);
-  const { ok, retryAfter } = rateLimit(`${name}:${subject}`, opts);
+  const { ok, retryAfter } = await rateLimit(`${name}:${subject}`, opts);
   if (ok) return null;
   return NextResponse.json(
     { error: "rate_limited", retryAfter },

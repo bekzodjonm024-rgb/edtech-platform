@@ -74,6 +74,16 @@ model Assignment {
   @@unique([groupId, materialId])
 }
 
+// Durable, cross-instance rate-limit counters (fixed window). One row per
+// (limiter:subject:time-bucket); stale rows are swept opportunistically.
+model RateLimit {
+  key     String   @id
+  count   Int      @default(0)
+  expires DateTime
+
+  @@index([expires])
+}
+
 model TelegramLogin {
   token     String    @id
   role      String    @default("student")

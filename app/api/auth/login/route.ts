@@ -15,7 +15,7 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
-  const limited = rateLimitResponse(req, "auth:login", { limit: 10, windowMs: 60_000 });
+  const limited = await rateLimitResponse(req, "auth:login", { limit: 10, windowMs: 60_000 });
   if (limited) return limited;
 
   const { data, error } = await parseJson(req, schema);

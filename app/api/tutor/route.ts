@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (!user) return new Response("unauthorized", { status: 401 });
 
   // This route streams text/plain, so keep 429 in the same shape (not JSON).
-  const rl = rateLimit(`ai:tutor:${user.id}`, { limit: 30, windowMs: 60_000 });
+  const rl = await rateLimit(`ai:tutor:${user.id}`, { limit: 30, windowMs: 60_000 });
   if (!rl.ok) {
     return new Response("rate_limited", {
       status: 429,

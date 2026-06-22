@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "student_only" }, { status: 403 });
   }
 
-  const limited = rateLimitResponse(req, "groups:join", { limit: 20, windowMs: 60_000, id: user.id });
+  const limited = await rateLimitResponse(req, "groups:join", { limit: 20, windowMs: 60_000, id: user.id });
   if (limited) return limited;
 
   const { data, error } = await parseJson(req, schema);
