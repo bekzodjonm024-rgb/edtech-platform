@@ -30,7 +30,8 @@ export async function GET(req: Request) {
     response_type: "code",
     scope: "openid email profile",
     state,
-    prompt: "select_account",
+    // No `prompt` → returning, already-signed-in users are redirected
+    // straight back without the account chooser (seamless auto-login).
   });
 
   return NextResponse.redirect(
