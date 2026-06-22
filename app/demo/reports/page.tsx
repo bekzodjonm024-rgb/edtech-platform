@@ -1,27 +1,54 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n/context";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Card } from "@/components/ui/card";
 import { DonutChart } from "@/components/demo/donut-chart";
 import { LineChart } from "@/components/demo/line-chart";
-import { reportsStats, reportsDistribution, resultsDynamics } from "@/lib/mock-data";
+
+type Report = {
+  total: number;
+  avgScore: number;
+  activeStudents: number;
+  completionRate: number;
+  distribution: { key: string; value: number; count: number; color: string }[];
+  recent: { label: string; value: number }[];
+};
 
 export default function ReportsPage() {
-  const { d } = useI18n();
+  const { d, locale } = useI18n();
   const tabs = [d.reports.tabAll, d.reports.tabLessons, d.reports.tabStudents];
   const [tab, setTab] = useState(0);
+  const [report, setReport] = useState<Report | null>(null);
 
-  const statLabel: Record<string, string> = {
-    avgScore: d.reports.avgScore,
-    completedRate: d.reports.completedRate,
-    activeStudents: d.reports.activeStudents,
-    avgTime: d.reports.avgTime,
-  };
+  useEffect(() => {
+    fetch("/api/reports", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => setReport(data))
+      .catch(() => setReport(null));
+  }, []);
+
+  const submittedLabel = { uz: "Topshirilgan", en: "Submitted", ru: "Сдано" }[locale];
+  const noDataHint = {
+    uz: "Hali natija yo'q. Talabalar testlarni yechgach, statistika shu yerda chiqadi.",
+    en: "No results yet. Once students take quizzes, stats will appear here.",
+    ru: "Результатов пока нет. Когда студенты пройдут тесты, статистика появится здесь.",
+  }[locale];
+
+  const cards = report
+    ? [
+        { label: d.reports.avgScore, value: `${report.avgScore}%` },
+        { label: d.reports.completedRate, value: `${report.completionRate}%` },
+        { label: d.reports.activeStudents, value: `${report.activeStudents}` },
+        { label: submittedLabel, value: `${report.total}` },
+      ]
+    : [];
+
+  const noData = report !== null && report.total === 0;
 
   return (
-    <DashboardShell role="teacher" userName="Malika Ismoilova" userRole={d.teacherRole}>
+    <DashboardShell role="teacher">
       <h1 className="mb-1 text-2xl font-bold">{d.reports.title}</h1>
       <p className="mb-5 text-sm text-slate-500 dark:text-slate-400">{d.overview}</p>
 
@@ -44,46 +71,48 @@ export default function ReportsPage() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {reportsStats.map((s) => {
-          const positive = s.delta.startsWith("+");
-          return (
-            <Card key={s.key} className="p-5">
-              <div className="text-sm text-slate-500 dark:text-slate-400">{statLabel[s.key]}</div>
-              <div className="mt-2 flex items-end gap-2">
-                <span className="text-3xl font-bold">{s.value}</span>
-                <span
-                  className={`mb-1 text-xs font-semibold ${
-                    positive ? "text-emerald-500" : "text-rose-500"
-                  }`}
-                >
-                  {s.delta}
-                </span>
-              </div>
+        {cards.map((s) => (
+          <Card key={s.label} className="p-5">
+            <div className="text-sm text-slate-500 dark:text-slate-400">{s.label}</div>
+            <div className="mt-2 text-3xl font-bold">{s.value}</div>
+          </Card>
+        ))}
+        {report === null &&
+          [0, 1, 2, 3].map((i) => (
+            <Card key={i} className="p-5">
+              <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="mt-3 h-8 w-16 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
             </Card>
-          );
-        })}
+          ))}
       </div>
 
-      {/* Charts */}
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <Card>
-          <h3 className="mb-4 font-semibold">{d.reports.distribution}</h3>
-          <DonutChart
-            size={170}
-            data={reportsDistribution.map((r) => ({
-              label: d.dist[r.key as keyof typeof d.dist],
-              value: r.value,
-              count: r.count,
-              color: r.color,
-            }))}
-          />
+      {noData ? (
+        <Card className="mt-6 py-16 text-center text-slate-500 dark:text-slate-400">
+          {noDataHint}
         </Card>
+      ) : (
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <Card>
+            <h3 className="mb-4 font-semibold">{d.reports.distribution}</h3>
+            {report && (
+              <DonutChart
+                size={170}
+                data={report.distribution.map((r) => ({
+                  label: d.dist[r.key as keyof typeof d.dist],
+                  value: r.value,
+                  count: r.count,
+                  color: r.color,
+                }))}
+              />
+            )}
+          </Card>
 
-        <Card>
-          <h3 className="mb-4 font-semibold">{d.reports.dynamics}</h3>
-          <LineChart data={resultsDynamics} />
-        </Card>
-      </div>
+          <Card>
+            <h3 className="mb-4 font-semibold">{d.reports.dynamics}</h3>
+            {report && report.recent.length > 0 && <LineChart data={report.recent} />}
+          </Card>
+        </div>
+      )}
     </DashboardShell>
   );
 }
