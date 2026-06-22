@@ -17,7 +17,7 @@ type StudentAssignment = {
   id: string;
   topic: string;
   subject: string;
-  kind: "presentation" | "quiz";
+  kind: "presentation" | "quiz" | "essay";
   dueAt: string | null;
   done: boolean;
   score: number | null;
@@ -148,11 +148,28 @@ export default function StudentDashboard() {
                       </div>
                     </div>
                     {a.done ? (
-                      <span className="shrink-0 text-xs font-semibold text-emerald-500">
-                        {a.score != null ? `${a.score}%` : "✓"}
-                      </span>
+                      a.kind === "essay" ? (
+                        <Link
+                          href={`/demo/essay/${a.id}`}
+                          className="shrink-0 text-xs font-semibold text-emerald-500 hover:underline"
+                        >
+                          {a.score != null ? `${a.score}%` : "✓"}
+                        </Link>
+                      ) : (
+                        <span className="shrink-0 text-xs font-semibold text-emerald-500">
+                          {a.score != null ? `${a.score}%` : "✓"}
+                        </span>
+                      )
                     ) : (
-                      <Link href={a.kind === "quiz" ? "/demo/quiz" : `/demo/view/${a.id}`}>
+                      <Link
+                        href={
+                          a.kind === "quiz"
+                            ? "/demo/quiz"
+                            : a.kind === "essay"
+                            ? `/demo/essay/${a.id}`
+                            : `/demo/view/${a.id}`
+                        }
+                      >
                         <Button size="sm" variant="outline">→</Button>
                       </Link>
                     )}

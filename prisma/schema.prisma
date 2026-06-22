@@ -91,6 +91,8 @@ model Submission {
   score        Int // 0-100
   correct      Int
   total        Int
+  content      String? // essay answer text (null for quizzes)
+  feedback     String? // JSON-encoded AI evaluation (essays only)
   assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
   student      User       @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())

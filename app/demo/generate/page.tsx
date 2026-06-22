@@ -13,6 +13,7 @@ import { Sparkles, Loader2, Check, FileText, Save } from "lucide-react";
 
 type Slide = { title: string; body?: string };
 type QuizQ = { q: string; options: string[]; answer: number };
+type Essay = { prompt: string; guidance?: string; expectedLength?: string; rubric?: string[] };
 
 export default function GeneratePage() {
   const { d, locale } = useI18n();
@@ -28,6 +29,8 @@ export default function GeneratePage() {
   const [quizReady, setQuizReady] = useState(false);
   const [quizAI, setQuizAI] = useState(false);
   const [genQuiz, setGenQuiz] = useState<QuizQ[] | null>(null);
+  const [genEssay, setGenEssay] = useState<Essay | null>(null);
+  const [essayAI, setEssayAI] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -41,20 +44,23 @@ export default function GeneratePage() {
     setQuizReady(false);
     setSaved(false);
     setGenQuiz(null);
+    setGenEssay(null);
 
     const headers = { "Content-Type": "application/json" };
     const body = { topic: topic.trim(), grade, subject, language: locale };
     const wantsQuiz = selected.includes("test");
+    const wantsEssay = selected.includes("homework");
 
     const post = (url: string, payload: object) =>
       fetch(url, { method: "POST", headers, body: JSON.stringify(payload) }).then((r) =>
         r.ok ? r.json() : Promise.reject()
       );
 
-    // Slides (always) and quiz (if selected) run in parallel.
-    const [slidesRes, quizRes] = await Promise.allSettled([
+    // Slides (always), quiz and essay (if selected) run in parallel.
+    const [slidesRes, quizRes, essayRes] = await Promise.allSettled([
       post("/api/generate", body),
       wantsQuiz ? post("/api/generate-quiz", { ...body, count: 5 }) : Promise.reject(),
+      wantsEssay ? post("/api/generate-essay", body) : Promise.reject(),
     ]);
 
     // Slides → AI result or local mock fallback.
@@ -96,6 +102,28 @@ export default function GeneratePage() {
       setQuizReady(true);
     }
 
+    // Essay → AI prompt + rubric, or a local template fallback.
+    if (wantsEssay) {
+      if (essayRes.status === "fulfilled" && essayRes.value?.prompt) {
+        const e = essayRes.value;
+        setGenEssay({
+          prompt: e.prompt,
+          guidance: e.guidance,
+          expectedLength: e.expectedLength,
+          rubric: Array.isArray(e.rubric) ? e.rubric : [],
+        });
+        setEssayAI(true);
+      } else {
+        setGenEssay({
+          prompt: `"${topic.trim()}" mavzusida tahliliy esse yozing: asosiy g'oyalarni o'z so'zlaringiz bilan tushuntiring va misollar keltiring.`,
+          guidance: "Fikringizni aniq dalillar bilan asoslang.",
+          expectedLength: "500-700 so'z",
+          rubric: ["Mavzuni tushunish", "Dalillar va misollar", "Tuzilma va mantiq", "Til savodxonligi"],
+        });
+        setEssayAI(false);
+      }
+    }
+
     setLoading(false);
   };
 
@@ -121,6 +149,13 @@ export default function GeneratePage() {
           body: JSON.stringify({ kind: "quiz", topic: topic.trim(), subject, data: genQuiz }),
         });
       }
+      if (genEssay) {
+        await fetch("/api/materials", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ kind: "essay", topic: topic.trim(), subject, data: genEssay }),
+        });
+      }
       setSaved(true);
     } catch {
       /* ignore */
@@ -140,7 +175,7 @@ export default function GeneratePage() {
   };
 
   return (
-    <DashboardShell role="teacher" userName="Malika Ismoilova" userRole={d.teacherRole}>
+    <DashboardShell role="teacher">
       <div className="mb-6 flex items-center gap-3">
         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
           <Sparkles className="h-5 w-5" />
@@ -336,6 +371,41 @@ export default function GeneratePage() {
                   </motion.div>
                 ))}
               </div>
+
+              {/* Essay preview */}
+              {genEssay && (
+                <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                  <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
+                    <FileText className="h-4 w-4 text-primary" />
+                    {d.mat.homework}
+                    {essayAI ? (
+                      <span className="rounded-pill bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                        ✨ Claude AI
+                      </span>
+                    ) : (
+                      <span className="rounded-pill bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500 dark:bg-slate-700">
+                        demo
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-slate-700 dark:text-slate-200">{genEssay.prompt}</p>
+                  {genEssay.expectedLength && (
+                    <p className="mt-1 text-xs text-slate-400">📏 {genEssay.expectedLength}</p>
+                  )}
+                  {genEssay.rubric && genEssay.rubric.length > 0 && (
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
+                      {genEssay.rubric.map((r, i) => (
+                        <li
+                          key={i}
+                          className="rounded-pill bg-white px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-700 dark:text-slate-300"
+                        >
+                          {r}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </Card>
           </motion.div>
         )}

@@ -79,6 +79,25 @@ export type DashDict = {
   dist: Record<"excellent" | "good" | "satisfactory" | "poor", string>;
   ach: Record<"explorer" | "taskMaster" | "topStudent", string>;
   empty: { noMaterials: string; noSubmissions: string };
+  essay: {
+    task: string;
+    guidance: string;
+    criteria: string;
+    expected: string;
+    yourAnswer: string;
+    placeholder: string;
+    submit: string;
+    submitting: string;
+    submitted: string;
+    feedbackTitle: string;
+    strengths: string;
+    improvements: string;
+    detailed: string;
+    scoreLabel: string;
+    pending: string;
+    notFound: string;
+    back: string;
+  };
 };
 
 export const dashDictionaries: Record<Locale, DashDict> = {
@@ -189,6 +208,25 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       noMaterials: "Hali material yaratilmagan",
       noSubmissions: "Hali topshiriq topshirilmagan",
     },
+    essay: {
+      task: "Topshiriq",
+      guidance: "Maslahat",
+      criteria: "Baholash mezonlari",
+      expected: "Taxminiy hajm",
+      yourAnswer: "Sizning javobingiz",
+      placeholder: "Javobingizni shu yerga yozing...",
+      submit: "Topshirish va baholash",
+      submitting: "Baholanmoqda...",
+      submitted: "Topshirildi",
+      feedbackTitle: "AI tahlili va fikri",
+      strengths: "Kuchli tomonlar",
+      improvements: "Yaxshilash mumkin",
+      detailed: "Batafsil fikr",
+      scoreLabel: "Baho",
+      pending: "AI baholash hozircha mavjud emas — o'qituvchi qo'lda tekshiradi.",
+      notFound: "Topshiriq topilmadi",
+      back: "Orqaga",
+    },
   },
   en: {
     sidebarTeacher: {
@@ -297,6 +335,25 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       noMaterials: "No materials created yet",
       noSubmissions: "No submissions yet",
     },
+    essay: {
+      task: "Task",
+      guidance: "Guidance",
+      criteria: "Grading criteria",
+      expected: "Expected length",
+      yourAnswer: "Your answer",
+      placeholder: "Write your answer here...",
+      submit: "Submit & grade",
+      submitting: "Grading...",
+      submitted: "Submitted",
+      feedbackTitle: "AI analysis & feedback",
+      strengths: "Strengths",
+      improvements: "Areas to improve",
+      detailed: "Detailed feedback",
+      scoreLabel: "Score",
+      pending: "AI grading is unavailable — your teacher will review it manually.",
+      notFound: "Assignment not found",
+      back: "Back",
+    },
   },
   ru: {
     sidebarTeacher: {
@@ -404,6 +461,25 @@ export const dashDictionaries: Record<Locale, DashDict> = {
     empty: {
       noMaterials: "Материалы ещё не созданы",
       noSubmissions: "Пока нет сдач",
+    },
+    essay: {
+      task: "Задание",
+      guidance: "Рекомендация",
+      criteria: "Критерии оценки",
+      expected: "Ожидаемый объём",
+      yourAnswer: "Ваш ответ",
+      placeholder: "Напишите ваш ответ здесь...",
+      submit: "Отправить и оценить",
+      submitting: "Оценивается...",
+      submitted: "Отправлено",
+      feedbackTitle: "Анализ и отзыв ИИ",
+      strengths: "Сильные стороны",
+      improvements: "Можно улучшить",
+      detailed: "Подробный отзыв",
+      scoreLabel: "Оценка",
+      pending: "Оценка ИИ недоступна — преподаватель проверит вручную.",
+      notFound: "Задание не найдено",
+      back: "Назад",
     },
   },
 };
