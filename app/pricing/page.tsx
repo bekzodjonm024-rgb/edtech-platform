@@ -68,7 +68,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/demo/teacher" className="mt-6">
+              <Link href="/register" className="mt-6">
                 <Button variant={p.featured ? "primary" : "outline"} className="w-full">
                   {t.cta.button}
                 </Button>

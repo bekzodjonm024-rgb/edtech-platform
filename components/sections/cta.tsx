@@ -20,7 +20,7 @@ export function CTA() {
               {t.cta.title}
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-white/80">{t.cta.subtitle}</p>
-            <Link href="/demo/teacher" className="mt-8 inline-block">
+            <Link href="/register" className="mt-8 inline-block">
               <Button size="lg" className="bg-white text-primary hover:bg-white/90">
                 {t.cta.button}
                 <ArrowRight className="h-4 w-4" />

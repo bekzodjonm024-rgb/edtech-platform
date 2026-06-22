@@ -64,7 +64,7 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.18 }}
           className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
         >
-          <Link href="/demo/teacher">
+          <Link href="/register">
             <Button size="lg">
               {t.hero.ctaPrimary}
               <ArrowRight className="h-4 w-4" />

@@ -109,7 +109,7 @@ export const dictionaries: Record<Locale, Dict> = {
       demo: "Demo",
       pricing: "Narxlar",
       about: "Loyiha haqida",
-      launch: "Demoni ochish",
+      launch: "Boshlash",
     },
     hero: {
       badge: "AI bilan ishlaydigan ta'lim platformasi",
@@ -117,7 +117,7 @@ export const dictionaries: Record<Locale, Dict> = {
       title2: "to'liq o'quv ekotizimi",
       subtitle:
         "EduAI OS professor-o'qituvchilar va talabalar uchun bitta mavzudan to'liq o'quv materiallarini avtomatik yaratadi: ma'ruza taqdimotlari, testlar, topshiriqlar va tahlil.",
-      ctaPrimary: "Demoni sinab ko'rish",
+      ctaPrimary: "Boshlash",
       ctaSecondary: "Imkoniyatlar",
       stat1: "10x",
       stat1Label: "tezroq tayyorgarlik",
@@ -200,7 +200,7 @@ export const dictionaries: Record<Locale, Dict> = {
     cta: {
       title: "Ta'limni birga o'zgartiramiz",
       subtitle: "Demoni hoziroq sinab ko'ring — ro'yxatdan o'tish shart emas.",
-      button: "Demoni ochish",
+      button: "Boshlash",
     },
     footer: {
       tagline: "Bitta mavzu — to'liq o'quv ekotizimi.",
@@ -243,7 +243,7 @@ export const dictionaries: Record<Locale, Dict> = {
       demo: "Demo",
       pricing: "Pricing",
       about: "About",
-      launch: "Open demo",
+      launch: "Get started",
     },
     hero: {
       badge: "AI-powered education platform",
@@ -251,7 +251,7 @@ export const dictionaries: Record<Locale, Dict> = {
       title2: "a complete learning ecosystem",
       subtitle:
         "EduAI OS turns a single topic into complete learning materials for university faculty and students: lecture decks, quizzes, assignments and analytics.",
-      ctaPrimary: "Try the demo",
+      ctaPrimary: "Get started",
       ctaSecondary: "See features",
       stat1: "10x",
       stat1Label: "faster prep",
@@ -334,7 +334,7 @@ export const dictionaries: Record<Locale, Dict> = {
     cta: {
       title: "Let's reshape education together",
       subtitle: "Try the demo right now — no sign-up needed.",
-      button: "Open the demo",
+      button: "Get started",
     },
     footer: {
       tagline: "One topic — a complete learning ecosystem.",
@@ -377,7 +377,7 @@ export const dictionaries: Record<Locale, Dict> = {
       demo: "Демо",
       pricing: "Цены",
       about: "О проекте",
-      launch: "Открыть демо",
+      launch: "Начать",
     },
     hero: {
       badge: "Образовательная платформа на базе ИИ",
@@ -385,7 +385,7 @@ export const dictionaries: Record<Locale, Dict> = {
       title2: "целая экосистема обучения",
       subtitle:
         "EduAI OS превращает одну тему в полный комплект учебных материалов для преподавателей и студентов вузов: лекционные презентации, тесты, задания и аналитику.",
-      ctaPrimary: "Попробовать демо",
+      ctaPrimary: "Начать",
       ctaSecondary: "Возможности",
       stat1: "10x",
       stat1Label: "быстрее подготовка",
@@ -468,7 +468,7 @@ export const dictionaries: Record<Locale, Dict> = {
     cta: {
       title: "Изменим образование вместе",
       subtitle: "Попробуйте демо прямо сейчас — без регистрации.",
-      button: "Открыть демо",
+      button: "Начать",
     },
     footer: {
       tagline: "Одна тема — целая экосистема обучения.",

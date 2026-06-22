@@ -21,11 +21,10 @@ export function Header() {
     ? user.role === "student"
       ? "/demo/student"
       : "/demo/teacher"
-    : "/login";
+    : "/register";
 
   const links = [
     { href: "/features", label: t.nav.features },
-    { href: "/demo/teacher", label: t.nav.demo },
     { href: "/pricing", label: t.nav.pricing },
     { href: "/about", label: t.nav.about },
   ];

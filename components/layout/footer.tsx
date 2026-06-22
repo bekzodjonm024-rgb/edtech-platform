@@ -29,7 +29,7 @@ export function Footer() {
           <h4 className="mb-3 text-sm font-semibold">{t.footer.product}</h4>
           <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
             <li><Link href="/features" className="hover:text-primary">{t.nav.features}</Link></li>
-            <li><Link href="/demo/teacher" className="hover:text-primary">{t.nav.demo}</Link></li>
+            <li><Link href="/register" className="hover:text-primary">{t.nav.launch}</Link></li>
             <li><Link href="/pricing" className="hover:text-primary">{t.nav.pricing}</Link></li>
           </ul>
         </div>
