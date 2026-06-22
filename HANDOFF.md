@@ -142,11 +142,16 @@ npm run dev
 ## 10. Pending / TODO (next-session candidates)
 
 1. **Anthropic credits** — add at console.anthropic.com → Billing to flip AI from mock to real (no code change).
-2. ✅ **DONE — Telegram bot token rotated** (2026-06-23). The old leaked token was `/revoke`d in @BotFather,
-   the new one set on Vercel as a **sensitive** env (`TELEGRAM_BOT_TOKEN`, Production), redeployed, and the
-   webhook re-registered. To re-register the webhook after any future rotation **without pasting the token
-   anywhere**, hit the protected helper route (token is read from server env):
-   `GET /api/telegram/setup?secret=<TELEGRAM_WEBHOOK_SECRET>` → calls `setWebhook` + returns `getWebhookInfo`.
+2. ✅ **DONE — Telegram bot token rotated + webhook secret reset** (2026-06-23). The old leaked token was
+   `/revoke`d in @BotFather; the new one set on Vercel as a **sensitive** env (`TELEGRAM_BOT_TOKEN`,
+   Production). `TELEGRAM_WEBHOOK_SECRET` was **also regenerated** — it had drifted out of sync with the
+   value registered on Telegram's side, and the webhook handler **silently drops** any update whose
+   `x-telegram-bot-api-secret-token` header ≠ env secret, so the bot looked dead. Fix: set the same fresh
+   value in the env AND via `setWebhook` `secret_token`, then redeploy. Helper route does the registration
+   without exposing the token: `GET /api/telegram/setup?secret=<TELEGRAM_WEBHOOK_SECRET>` (calls `setWebhook`
+   + returns `getWebhookInfo`). Verified: login works end-to-end.
+   ⚠️ Gotcha for next time: if the bot goes silent, the **secret_token mismatch** is the usual cause — check
+   `getWebhookInfo` via the setup route and confirm env `TELEGRAM_WEBHOOK_SECRET` matches.
    ⚠️ Still pending: the **Neon DB password** that leaked earlier — reset it in Neon if concerned.
 3. ✅ **DONE — Dashboard widgets bound to real data.** Teacher home (recent lessons, assignment-status
    donut), student home (points, achievements, progress ring, assignments list) all use real DB data now,
