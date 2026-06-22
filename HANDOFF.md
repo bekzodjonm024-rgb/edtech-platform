@@ -1,6 +1,7 @@
 # EduAI OS — Project Handoff & Status
 
-> Full context for continuing this project in a new session. Last updated: 2026-06-23.
+> Full context for continuing this project in a new session. Last updated: 2026-06-23
+> (added: real-data dashboards, AI essay grading, teacher Analytics, Settings page).
 
 ## 1. What this is
 
@@ -28,21 +29,23 @@ university: **talaba** (student), **professor-o'qituvchi** (faculty), **guruh** 
 Sign up / log in  (Email · Google · Telegram)
    → Teacher creates a GROUP  → gets a 6-char invite code (e.g. MOL-ELF9E)
    → Student JOINS by code
-   → Teacher generates AI material (slides / quiz) and SAVES it
+   → Teacher generates AI material (slides / quiz / essay) and SAVES it
    → Teacher ASSIGNS a material to a group (optional deadline)
-   → Student sees the assignment, TAKES the quiz / OPENS the presentation
-   → Quiz result is SAVED  → Teacher sees per-student SCORES + group average + Reports
+   → Student sees the assignment, TAKES the quiz / OPENS the presentation /
+     WRITES an essay → Claude grades it (strengths, improvements, score)
+   → Result is SAVED  → Teacher sees per-student SCORES + group average + Reports + Analytics
 ```
 
 ## 4. Data model (Prisma — `prisma/schema.prisma`)
 
 - **User** — id, email(unique), name, role(`teacher`|`student`), password?(null for OAuth),
   provider(`email`|`google`|`telegram`), providerId?, createdAt
-- **Material** — id, userId→User, kind(`presentation`|`quiz`), topic, subject?, data(JSON string), createdAt
+- **Material** — id, userId→User, kind(`presentation`|`quiz`|`essay`), topic, subject?, data(JSON string), createdAt
 - **Group** — id, name, subject?, code(unique), teacherId→User, createdAt
 - **Membership** — groupId→Group, studentId→User, joinedAt; `@@unique([groupId, studentId])`
 - **Assignment** — groupId→Group, materialId→Material, dueAt?, createdAt; `@@unique([groupId, materialId])`
-- **Submission** — assignmentId→Assignment, studentId→User, score(0-100), correct, total, updatedAt; `@@unique([assignmentId, studentId])`
+- **Submission** — assignmentId→Assignment, studentId→User, score(0-100), correct, total,
+  **content?** (essay answer text), **feedback?** (JSON AI evaluation), updatedAt; `@@unique([assignmentId, studentId])`
 - **TelegramLogin** — token(id), role, tgId?, userId?, authedAt?, consumed, createdAt (pending bot logins)
 
 > Schema changes auto-apply on deploy: the `build` script runs `prisma db push`, so adding a model
@@ -61,21 +64,32 @@ Sign up / log in  (Email · Google · Telegram)
 **AI** (graceful mock fallback if no key / error)
 - `POST /api/generate` — lesson slides (Claude structured outputs `output_config.format`)
 - `POST /api/generate-quiz` — quiz questions (structured)
+- `POST /api/generate-essay` — essay prompt + guidance + rubric (structured)
+- `POST /api/submissions/essay` — student essay answer → Claude grades vs rubric → stores `content`+`feedback`+score
 - `POST /api/tutor` — streaming tutor chat
 
 **Data**
 - `GET/POST /api/materials`, `GET/DELETE /api/materials/[id]`
 - `GET/POST /api/groups`, `POST /api/groups/join`, `GET/DELETE /api/groups/[id]`
 - `GET/POST/DELETE /api/groups/[id]/assignments`
-- `POST /api/submissions`, `GET /api/assignments/[id]/submissions`
-- `GET /api/stats` (dashboard numbers), `GET /api/reports` (teacher gradebook aggregation)
+- `POST /api/submissions` (quiz), `GET /api/assignments/[id]/submissions`
+- `GET /api/my/assignments` (student's assignments + own submission status),
+  `GET /api/my/assignments/[id]` (one assignment + material payload + own submission)
+- `GET /api/stats` (dashboard numbers + widget data), `GET /api/reports` (teacher gradebook),
+  `GET /api/analytics` (metrics, distribution, timeline, per-student progress)
+
+**Account/settings**
+- `GET/PATCH /api/auth/profile` — read account meta (hasPassword, provider) / update name (re-signs cookie)
+- `POST /api/auth/password` — change password (or set one for OAuth-only accounts)
 
 ## 6. Pages (`app/...`)
 
 - Public: `/` (landing), `/login`, `/register`, `/features`, `/about`, `/pricing`, `not-found`
 - Dashboard (auth-gated, redirect to `/login` if no session — guard in `DashboardShell`):
   `/demo/teacher`, `/demo/student`, `/demo/generate`, `/demo/lesson`, `/demo/reports`,
-  `/demo/tutor`, `/demo/materials`, `/demo/groups`, `/demo/quiz`, `/demo/presentation`, `/demo/view/[id]`
+  `/demo/analytics` (teacher analytics), `/demo/settings` (profile + password, both roles),
+  `/demo/tutor`, `/demo/materials`, `/demo/groups`, `/demo/quiz`, `/demo/presentation`,
+  `/demo/view/[id]`, `/demo/essay/[id]` (student essay: prompt + answer + AI feedback)
 
 ## 7. Key files
 
@@ -130,11 +144,19 @@ npm run dev
    → update `TELEGRAM_BOT_TOKEN` on Vercel → **redeploy** → re-run `setWebhook` with the new token + existing
    `TELEGRAM_WEBHOOK_SECRET` (else Telegram login breaks). The same applies to the **Neon DB password** that
    leaked earlier (reset it in Neon if concerned).
-3. **Dashboard widgets still on mock data** (real ones: stat cards on teacher/student, Reports page):
-   teacher home "recent lessons" + "assignment status" donut, student "achievements", lesson-page leaderboard.
-   Bind these to real data if desired.
-4. Ideas raised but not built: settings page (profile/password), notifications (new assignment/deadline),
-   custom domain (e.g. eduai.uz), OneID login (needs official org credentials from id.egov.uz — discussed, not built).
+3. ✅ **DONE — Dashboard widgets bound to real data.** Teacher home (recent lessons, assignment-status
+   donut), student home (points, achievements, progress ring, assignments list) all use real DB data now,
+   with loading skeletons + shape validation (fixed the old "undefined" stat-card bug). Still on mock:
+   `/demo/lesson` leaderboard + that page's widgets (cosmetic demo page).
+4. ✅ **DONE — Settings page** (`/demo/settings`): change name + password (OAuth-only accounts can set one).
+5. ✅ **DONE — AI essay grading**: teacher generates essays (Generate page → "Uy vazifasi"/homework),
+   assigns them; student writes an answer at `/demo/essay/[id]`; Claude grades vs rubric and returns
+   strengths/improvements/score. Needs Anthropic credits for real grading (graceful "teacher will review" fallback otherwise).
+6. ✅ **DONE — Teacher Analytics** (`/demo/analytics`): metrics, grade-distribution donut, results-timeline
+   line chart, per-student progress table, rule-based insights (no AI credits needed).
+7. Still not built: notifications (new assignment/deadline), custom domain (e.g. eduai.uz),
+   OneID login (needs official org credentials from id.egov.uz). Quiz-taking is still wired to the
+   generic `/demo/quiz` demo page (not yet a real per-assignment quiz flow like essays have).
 
 ## 11. Test accounts (live)
 
