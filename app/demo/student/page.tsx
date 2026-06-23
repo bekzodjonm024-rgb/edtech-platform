@@ -164,7 +164,7 @@ export default function StudentDashboard() {
                       <Link
                         href={
                           a.kind === "quiz"
-                            ? "/demo/quiz"
+                            ? `/demo/quiz/${a.id}`
                             : a.kind === "essay"
                             ? `/demo/essay/${a.id}`
                             : `/demo/view/${a.id}`
