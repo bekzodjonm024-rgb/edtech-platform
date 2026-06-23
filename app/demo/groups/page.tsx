@@ -473,17 +473,6 @@ function AssignmentRow({
 }) {
   const isQuiz = a.material.kind === "quiz";
   const isOverdue = a.dueAt ? new Date(a.dueAt).getTime() < Date.now() : false;
-  const [open, setOpen] = useState(false);
-  const [data, setData] = useState<{ count: number; avg: number; submissions: SubmissionRow[] } | null>(null);
-
-  const toggle = async () => {
-    const next = !open;
-    setOpen(next);
-    if (next && data === null) {
-      const res = await fetch(`/api/assignments/${a.id}/submissions`, { cache: "no-store" });
-      setData(await res.json());
-    }
-  };
 
   return (
     <div className="rounded-lg border border-slate-200 dark:border-slate-700">
@@ -508,54 +497,17 @@ function AssignmentRow({
             )}
           </div>
         </div>
-        {isQuiz && (
-          <button
-            onClick={toggle}
-            className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-          >
-            {g.results}
-            {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          </button>
-        )}
+        <a
+          href={`/demo/assignments/${a.id}`}
+          className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+        >
+          {g.results}
+        </a>
         <button onClick={onUnassign} className="text-xs text-slate-400 hover:text-rose-500">
           {g.unassign}
         </button>
       </div>
 
-      {isQuiz && open && (
-        <div className="border-t border-slate-200 px-3 py-2 dark:border-slate-700">
-          {data === null ? (
-            <div className="flex justify-center py-2">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            </div>
-          ) : data.submissions.length === 0 ? (
-            <p className="py-1 text-center text-xs text-slate-400">{g.noSubmissions}</p>
-          ) : (
-            <>
-              <div className="mb-2 text-xs text-slate-500">
-                {g.avg}: <span className="font-semibold text-primary">{data.avg}%</span> · {data.count}
-              </div>
-              <div className="space-y-1">
-                {data.submissions.map((s) => (
-                  <div key={s.studentId} className="flex items-center justify-between text-sm">
-                    <span className="truncate">{s.name}</span>
-                    <span
-                      className={`font-semibold ${
-                        s.score >= 60 ? "text-emerald-500" : "text-rose-500"
-                      }`}
-                    >
-                      {s.score}%{" "}
-                      <span className="text-xs font-normal text-slate-400">
-                        ({s.correct}/{s.total})
-                      </span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }
