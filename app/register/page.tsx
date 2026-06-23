@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth/context";
 import { useI18n } from "@/lib/i18n/context";
 import { authStrings } from "@/lib/i18n/auth-strings";
 import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
 import { SocialLogins } from "@/components/auth/social-logins";
 import { GraduationCap, Loader2, BookUser, GraduationCap as GradCap } from "lucide-react";
 
@@ -43,9 +44,6 @@ export default function RegisterPage() {
     }
   };
 
-  const field =
-    "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-primary dark:border-slate-700 dark:bg-slate-800";
-
   const roles = [
     { value: "teacher" as const, label: a.teacher, icon: BookUser },
     { value: "student" as const, label: a.student, icon: GradCap },
@@ -67,7 +65,7 @@ export default function RegisterPage() {
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{a.role}</label>
+              <Label>{a.role}</Label>
               <div className="grid grid-cols-2 gap-2">
                 {roles.map((r) => (
                   <button
@@ -87,16 +85,16 @@ export default function RegisterPage() {
               </div>
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{a.name}</label>
-              <input required value={name} onChange={(e) => setName(e.target.value)} className={field} placeholder="Ism Familiya" />
+              <Label>{a.name}</Label>
+              <Input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Ism Familiya" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{a.email}</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={field} placeholder="you@university.uz" />
+              <Label>{a.email}</Label>
+              <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@university.uz" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{a.password}</label>
-              <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className={field} placeholder="••••••••" />
+              <Label>{a.password}</Label>
+              <Input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </div>
 
             {error && <p className="text-sm text-rose-500">{error}</p>}

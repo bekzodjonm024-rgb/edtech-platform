@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth/context";
 import { useI18n } from "@/lib/i18n/context";
 import { authStrings } from "@/lib/i18n/auth-strings";
 import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
 import { SocialLogins } from "@/components/auth/social-logins";
 import { GraduationCap, Loader2 } from "lucide-react";
 
@@ -39,9 +40,6 @@ export default function LoginPage() {
     }
   };
 
-  const field =
-    "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-primary dark:border-slate-700 dark:bg-slate-800";
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 dark:bg-slate-950">
       <div className="w-full max-w-sm">
@@ -58,12 +56,12 @@ export default function LoginPage() {
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{a.email}</label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={field} placeholder="you@university.uz" />
+              <Label>{a.email}</Label>
+              <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@university.uz" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">{a.password}</label>
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className={field} placeholder="••••••••" />
+              <Label>{a.password}</Label>
+              <Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
             </div>
 
             {error && <p className="text-sm text-rose-500">{error}</p>}

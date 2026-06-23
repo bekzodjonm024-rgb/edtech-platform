@@ -7,12 +7,15 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import type { Role } from "@/components/dashboard/sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
+import { useToast } from "@/components/ui/toast";
 import { User, Lock, Loader2 } from "lucide-react";
 
 export default function SettingsPage() {
   const { d } = useI18n();
   const s = d.settings;
   const { user, refresh } = useAuth();
+  const { toast } = useToast();
 
   const [name, setName] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -24,7 +27,6 @@ export default function SettingsPage() {
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
   const [savingPw, setSavingPw] = useState(false);
-  const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   useEffect(() => {
     if (user) setName(user.name);
@@ -58,6 +60,7 @@ export default function SettingsPage() {
       if (res.ok) {
         await refresh();
         setNameSaved(true);
+        toast({ type: "success", message: s.saved });
       }
     } finally {
       setSavingName(false);
@@ -65,13 +68,12 @@ export default function SettingsPage() {
   };
 
   const savePassword = async () => {
-    setPwMsg(null);
     if (next.length < 6) {
-      setPwMsg({ ok: false, text: s.errShort });
+      toast({ type: "error", message: s.errShort });
       return;
     }
     if (next !== confirm) {
-      setPwMsg({ ok: false, text: s.errMismatch });
+      toast({ type: "error", message: s.errMismatch });
       return;
     }
     setSavingPw(true);
@@ -83,22 +85,18 @@ export default function SettingsPage() {
       });
       const j = await res.json().catch(() => ({}));
       if (res.ok) {
-        setPwMsg({ ok: true, text: s.pwSaved });
+        toast({ type: "success", message: s.pwSaved });
         setCurrent("");
         setNext("");
         setConfirm("");
         setHasPassword(true);
       } else {
-        setPwMsg({ ok: false, text: j.error === "wrong_password" ? s.errWrong : s.errShort });
+        toast({ type: "error", message: j.error === "wrong_password" ? s.errWrong : s.errShort });
       }
     } finally {
       setSavingPw(false);
     }
   };
-
-  const field =
-    "w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition-colors focus:border-primary disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800";
-  const label = "mb-1.5 block text-sm font-medium";
 
   return (
     <DashboardShell role={(user?.role as Role) ?? "student"}>
@@ -115,12 +113,12 @@ export default function SettingsPage() {
           </h3>
           <div className="space-y-4">
             <div>
-              <label className={label}>{s.name}</label>
-              <input value={name} onChange={(e) => { setName(e.target.value); setNameSaved(false); }} className={field} />
+              <Label>{s.name}</Label>
+              <Input value={name} onChange={(e) => { setName(e.target.value); setNameSaved(false); }} />
             </div>
             <div>
-              <label className={label}>{s.email}</label>
-              <input value={user?.email ?? ""} disabled className={field} />
+              <Label>{s.email}</Label>
+              <Input value={user?.email ?? ""} disabled />
               <p className="mt-1 text-xs text-slate-400">{s.emailHint}</p>
             </div>
             <Button onClick={saveName} disabled={savingName || name.trim().length < 2 || name === user?.name}>
@@ -148,26 +146,22 @@ export default function SettingsPage() {
           <div className="space-y-4">
             {hasPassword && (
               <div>
-                <label className={label}>{s.currentPassword}</label>
-                <input
+                <Label>{s.currentPassword}</Label>
+                <Input
                   type="password"
                   value={current}
                   onChange={(e) => setCurrent(e.target.value)}
-                  className={field}
                 />
               </div>
             )}
             <div>
-              <label className={label}>{s.newPassword}</label>
-              <input type="password" value={next} onChange={(e) => setNext(e.target.value)} className={field} />
+              <Label>{s.newPassword}</Label>
+              <Input type="password" value={next} onChange={(e) => setNext(e.target.value)} />
             </div>
             <div>
-              <label className={label}>{s.confirmPassword}</label>
-              <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={field} />
+              <Label>{s.confirmPassword}</Label>
+              <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
             </div>
-            {pwMsg && (
-              <p className={`text-sm ${pwMsg.ok ? "text-emerald-500" : "text-rose-500"}`}>{pwMsg.text}</p>
-            )}
             <Button onClick={savePassword} disabled={savingPw || !next || !confirm}>
               {savingPw ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> {s.saving}</>
