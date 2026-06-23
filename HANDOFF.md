@@ -204,3 +204,19 @@ npm run dev
   **HSTS**, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`.
   ⚠️ If you add a 3rd-party script/CDN/iframe, update the CSP or it'll be blocked. Tightening to nonce-based
   scripts (drop `'unsafe-inline'`) needs middleware — a future task.
+
+## 14. SEO baseline (added 2026-06-23)
+
+- `lib/seo.ts` — shared `SITE_URL` / `SITE_NAME` / `SITE_DESCRIPTION` (single source of truth).
+- **Root metadata** (`app/layout.tsx`): `metadataBase`, title template `"%s — EduAI OS"`, default
+  description/keywords, canonical, OpenGraph + Twitter card, `robots` (index/follow). Lang is `uz`.
+- **Metadata-route files**: `app/robots.ts` (allow all, disallow `/api/ /demo/ /login /register`, points to
+  sitemap), `app/sitemap.ts` (4 public routes: `/ /features /pricing /about`), `app/manifest.ts`
+  (PWA basics, theme `#7c5cff`, uses `public/favicon.svg`), `app/opengraph-image.tsx` (branded 1200×630 PNG
+  via `next/og` — auto-wired into OG + Twitter for every route).
+- **Per-page metadata**: `features` exports `metadata` (server component). `about` + `pricing` get indexable
+  titles via a route-folder `layout.tsx`; `login` + `register` layouts set `robots: { index:false }`.
+  ⚠️ The client-component pages can't export `metadata` themselves — that's why the layout wrappers exist.
+- **JSON-LD** on the landing page (`app/page.tsx`): Organization + WebSite + SoftwareApplication graph.
+- Verified live: robots.txt, sitemap.xml, manifest.webmanifest, /opengraph-image (PNG), landing JSON-LD,
+  `/features` → `<title>Imkoniyatlar — EduAI OS</title>`.
