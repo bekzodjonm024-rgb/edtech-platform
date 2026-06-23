@@ -220,3 +220,21 @@ npm run dev
 - **JSON-LD** on the landing page (`app/page.tsx`): Organization + WebSite + SoftwareApplication graph.
 - Verified live: robots.txt, sitemap.xml, manifest.webmanifest, /opengraph-image (PNG), landing JSON-LD,
   `/features` → `<title>Imkoniyatlar — EduAI OS</title>`.
+
+## 15. Design-system primitives (added 2026-06-23)
+
+`components/ui/` previously had only `button`, `card`, `badge`. Added 11 reusable primitives in the same
+style (`cn` from `lib/utils`, `forwardRef`, brand tokens `primary`/`secondary`, `rounded-xl/2xl`/`rounded-pill`,
+`shadow-card/lift`, dark-mode variants, `focus-visible:ring-primary`):
+
+- **Static** (no `"use client"`): `input.tsx` (`Input` / `Textarea` / `Label`), `skeleton.tsx`,
+  `spinner.tsx` (`Spinner` + `LoadingState`), `empty-state.tsx` (`EmptyState`, takes a lucide icon),
+  `avatar.tsx` (initials fallback + image), `table.tsx` (`Table`/`THead`/`TBody`/`TR`/`TH`/`TD`).
+- **Interactive** (`"use client"`): `tabs.tsx` (context-based `Tabs`/`TabsList`/`TabsTrigger`/`TabsContent`,
+  controlled or uncontrolled), `tooltip.tsx`, `dropdown.tsx` (`Dropdown` + `DropdownItem`, outside-click +
+  Esc close), `modal.tsx` (portal, Esc + backdrop close, body-scroll lock), `toast.tsx`.
+- **Toast usage**: `<Toaster>` is wired into `app/providers.tsx` (innermost), so any client component can do
+  `const { toast } = useToast(); toast({ type: "success", message: "…" })`. Types: success/error/info,
+  auto-dismiss 4s. Uses the existing `animate-fade-up` keyframe.
+- ⚠️ These are **built but not yet adopted** across existing pages — they're tree-shaken until imported.
+  Next opportunity: refactor dashboard/auth forms to use them for visual consistency (low risk, incremental).
