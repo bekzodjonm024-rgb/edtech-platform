@@ -70,8 +70,8 @@ export default function AdminGroups() {
             <TR>
               <TH>Guruh nomi</TH>
               <TH>Kod</TH>
-              <TH>O'qituvchi</TH>
-              <TH>A'zolar</TH>
+              <TH>{"O'qituvchi"}</TH>
+              <TH>{"A'zolar"}</TH>
               <TH>Topshiriqlar</TH>
               <TH>Yaratilgan</TH>
               <TH />
@@ -125,8 +125,8 @@ export default function AdminGroups() {
         {deleteTarget && (
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              <strong>"{deleteTarget.name}"</strong> guruhini o'chirishni tasdiqlaysizmi?
-              Barcha a'zolar va topshiriqlar ham o'chiriladi.
+              <strong>&quot;{deleteTarget.name}&quot;</strong> guruhini o&apos;chirishni tasdiqlaysizmi?
+              Barcha a&apos;zolar va topshiriqlar ham o&apos;chiriladi.
             </p>
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setDeleteTarget(null)}>Bekor</Button>

@@ -141,8 +141,8 @@ export default function AdminMaterials() {
         {deleteTarget && (
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              <strong>"{deleteTarget.topic}"</strong> materialini o'chirishni tasdiqlaysizmi?
-              Unga bog'liq barcha topshiriqlar ham o'chiriladi.
+              <strong>&quot;{deleteTarget.topic}&quot;</strong> materialini o&apos;chirishni tasdiqlaysizmi?
+              Unga bog&apos;liq barcha topshiriqlar ham o&apos;chiriladi.
             </p>
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setDeleteTarget(null)}>Bekor</Button>

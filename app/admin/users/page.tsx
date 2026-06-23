@@ -129,7 +129,7 @@ export default function AdminUsers() {
               <TH>Kirish usuli</TH>
               <TH>Materiallar</TH>
               <TH>Guruhlar</TH>
-              <TH>Ro'yxatdan</TH>
+              <TH>{"Ro'yxatdan"}</TH>
               <TH />
             </TR>
           </THead>
@@ -217,8 +217,8 @@ export default function AdminUsers() {
         {deleteTarget && (
           <div className="space-y-4">
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              <strong>{deleteTarget.name}</strong> ({deleteTarget.email}) ni o'chirishni tasdiqlaysizmi?
-              Bu amalni qaytarib bo'lmaydi.
+              <strong>{deleteTarget.name}</strong> ({deleteTarget.email}) ni o&apos;chirishni tasdiqlaysizmi?
+              Bu amalni qaytarib bo&apos;lmaydi.
             </p>
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={() => setDeleteTarget(null)}>Bekor</Button>

@@ -62,7 +62,7 @@ export default function AdminDashboard() {
         {/* Recent users */}
         <Card>
           <h2 className="mb-4 flex items-center gap-2 font-semibold">
-            <TrendingUp className="h-4 w-4 text-primary" /> Oxirgi ro'yxatdan o'tganlar
+            <TrendingUp className="h-4 w-4 text-primary" /> {"Oxirgi ro'yxatdan o'tganlar"}
           </h2>
           <div className="space-y-3">
             {stats.recentUsers.map((u) => (
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
               </div>
             ))}
             {stats.recentSubmissions.length === 0 && (
-              <p className="text-sm text-slate-400">Hali natija yo'q</p>
+              <p className="text-sm text-slate-400">{"Hali natija yo'q"}</p>
             )}
           </div>
         </Card>
