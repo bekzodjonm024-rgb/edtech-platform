@@ -167,9 +167,11 @@ npm run dev
    strengths/improvements/score. Needs Anthropic credits for real grading (graceful "teacher will review" fallback otherwise).
 6. ✅ **DONE — Teacher Analytics** (`/demo/analytics`): metrics, grade-distribution donut, results-timeline
    line chart, per-student progress table, rule-based insights (no AI credits needed).
-7. Still not built: notifications (new assignment/deadline), custom domain (e.g. eduai.uz),
-   OneID login (needs official org credentials from id.egov.uz). Quiz-taking is still wired to the
-   generic `/demo/quiz` demo page (not yet a real per-assignment quiz flow like essays have).
+7. ✅ **DONE — Per-assignment quiz flow** (`/demo/quiz/[id]`): fetches real assignment data,
+   shows questions from DB, submits score to `/api/submissions`, shows previous submission on reload.
+   Student dashboard link updated from `/demo/quiz` → `/demo/quiz/${a.id}`.
+8. Still not built: notifications (new assignment/deadline), custom domain (e.g. eduai.uz),
+   OneID login (needs official org credentials from id.egov.uz).
 
 ## 11. Test accounts (live)
 
