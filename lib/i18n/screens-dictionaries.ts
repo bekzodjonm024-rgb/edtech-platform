@@ -41,6 +41,10 @@ export type ScreensDict = {
     reviewMistakes: string;
     retry: string;
     back: string;
+    review: string;
+    yourAnswer: string;
+    correctAnswer: string;
+    skippedAnswer: string;
   };
   tutor: {
     title: string;
@@ -96,6 +100,10 @@ export const screensDictionaries: Record<Locale, ScreensDict> = {
       reviewMistakes: "Xatolarni ko'rish",
       retry: "Qaytadan",
       back: "Panelga qaytish",
+      review: "Javoblarni ko'rish",
+      yourAnswer: "Sizning javobingiz",
+      correctAnswer: "To'g'ri javob",
+      skippedAnswer: "O'tkazib yuborilgan",
     },
     tutor: {
       title: "AI Tutor",
@@ -150,6 +158,10 @@ export const screensDictionaries: Record<Locale, ScreensDict> = {
       reviewMistakes: "Review mistakes",
       retry: "Try again",
       back: "Back to dashboard",
+      review: "Review answers",
+      yourAnswer: "Your answer",
+      correctAnswer: "Correct answer",
+      skippedAnswer: "Skipped",
     },
     tutor: {
       title: "AI Tutor",
@@ -204,6 +216,10 @@ export const screensDictionaries: Record<Locale, ScreensDict> = {
       reviewMistakes: "Разбор ошибок",
       retry: "Заново",
       back: "На панель",
+      review: "Просмотр ответов",
+      yourAnswer: "Ваш ответ",
+      correctAnswer: "Правильный ответ",
+      skippedAnswer: "Пропущено",
     },
     tutor: {
       title: "ИИ-репетитор",

@@ -15,20 +15,25 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
+  X,
   RotateCcw,
+  ClipboardList,
 } from "lucide-react";
 
 type Question = { q: string; options: string[]; answer: number };
-
 type QuizData = { questions: Question[] };
-
 type Assignment = {
   id: string;
   topic: string;
   subject: string;
   kind: string;
   data: QuizData | null;
-  submission: { score: number; correct: number; total: number } | null;
+  submission: {
+    score: number;
+    correct: number;
+    total: number;
+    answers: (number | null)[] | null;
+  } | null;
 };
 
 export default function QuizAssignmentPage() {
@@ -45,6 +50,7 @@ export default function QuizAssignmentPage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ score: number; correct: number; total: number } | null>(null);
+  const [showReview, setShowReview] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -54,17 +60,17 @@ export default function QuizAssignmentPage() {
         if (!active) return;
         setAssignment(a);
         const total = a.data?.questions?.length ?? 0;
-        setAnswers(Array(total).fill(null));
         if (a.submission) {
-          setResult(a.submission);
+          setResult({ score: a.submission.score, correct: a.submission.correct, total: a.submission.total });
+          setAnswers(a.submission.answers ?? Array(total).fill(null));
           setSubmitted(true);
+        } else {
+          setAnswers(Array(total).fill(null));
         }
       })
       .catch(() => active && setError(true))
       .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
+    return () => { active = false; };
   }, [id]);
 
   const questions = assignment?.data?.questions ?? [];
@@ -82,11 +88,9 @@ export default function QuizAssignmentPage() {
       await fetch("/api/submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignmentId: id, score, correct, total }),
+        body: JSON.stringify({ assignmentId: id, score, correct, total, answers }),
       });
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
     setResult({ score, correct, total });
     setSubmitting(false);
     setSubmitted(true);
@@ -95,9 +99,7 @@ export default function QuizAssignmentPage() {
   if (loading) {
     return (
       <DashboardShell role="student">
-        <div className="flex items-center justify-center py-20">
-          <Spinner />
-        </div>
+        <div className="flex items-center justify-center py-20"><Spinner /></div>
       </DashboardShell>
     );
   }
@@ -105,10 +107,7 @@ export default function QuizAssignmentPage() {
   if (error || !assignment || !questions.length) {
     return (
       <DashboardShell role="student">
-        <Link
-          href="/demo/student"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary"
-        >
+        <Link href="/demo/student" className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary">
           <ArrowLeft className="h-4 w-4" /> {q.back}
         </Link>
         <Card className="py-10 text-center text-sm text-slate-500">
@@ -118,18 +117,96 @@ export default function QuizAssignmentPage() {
     );
   }
 
+  /* ---------- Review screen ---------- */
+  if (submitted && result && showReview) {
+    return (
+      <DashboardShell role="student">
+        <div className="mb-4 flex items-center gap-3">
+          <button
+            onClick={() => setShowReview(false)}
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary"
+          >
+            <ArrowLeft className="h-4 w-4" /> {q.back}
+          </button>
+          <span className="text-sm font-semibold">{assignment.topic}</span>
+        </div>
+
+        <div className="space-y-4">
+          {questions.map((qu, i) => {
+            const chosen = answers[i] ?? null;
+            const isCorrect = chosen === qu.answer;
+            const isSkipped = chosen === null;
+
+            return (
+              <Card key={i}>
+                <div className="mb-3 flex items-start gap-2">
+                  <span
+                    className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                      isSkipped
+                        ? "bg-slate-200 text-slate-500 dark:bg-slate-700"
+                        : isCorrect
+                        ? "bg-emerald-500 text-white"
+                        : "bg-rose-500 text-white"
+                    }`}
+                  >
+                    {isSkipped ? "—" : isCorrect ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+                  </span>
+                  <p className="text-sm font-semibold leading-snug">
+                    {i + 1}. {qu.q}
+                  </p>
+                </div>
+
+                <div className="ml-8 space-y-1.5">
+                  {qu.options.map((opt, oi) => {
+                    const isChosen = oi === chosen;
+                    const isRightAnswer = oi === qu.answer;
+                    let cls = "rounded-lg border px-3 py-2 text-sm ";
+                    if (isRightAnswer) {
+                      cls += "border-emerald-400 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300";
+                    } else if (isChosen && !isCorrect) {
+                      cls += "border-rose-400 bg-rose-50 text-rose-700 dark:border-rose-700 dark:bg-rose-900/20 dark:text-rose-300";
+                    } else {
+                      cls += "border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400";
+                    }
+                    return (
+                      <div key={oi} className={cls}>
+                        <span className="mr-2 font-semibold">{String.fromCharCode(65 + oi)}.</span>
+                        {opt}
+                        {isRightAnswer && (
+                          <span className="ml-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                            ✓ {q.correctAnswer}
+                          </span>
+                        )}
+                        {isChosen && !isCorrect && (
+                          <span className="ml-2 text-xs font-medium text-rose-500">
+                            ✗ {q.yourAnswer}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {isSkipped && (
+                    <p className="text-xs text-slate-400 italic">{q.skippedAnswer}</p>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </DashboardShell>
+    );
+  }
+
   /* ---------- Result screen ---------- */
   if (submitted && result) {
     const verdict =
       result.score >= 85 ? q.excellent : result.score >= 60 ? q.good : q.keepGoing;
-    const incorrect = result.total - result.correct;
+    const skipped = answers.filter((a) => a === null).length;
+    const incorrect = result.total - result.correct - skipped;
 
     return (
       <DashboardShell role="student">
-        <Link
-          href="/demo/student"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary"
-        >
+        <Link href="/demo/student" className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary">
           <ArrowLeft className="h-4 w-4" /> {q.back}
         </Link>
         <motion.div
@@ -139,11 +216,7 @@ export default function QuizAssignmentPage() {
         >
           <Card className="text-center">
             <div className="mb-1 text-sm text-slate-500">{assignment.topic}</div>
-            <ProgressRing
-              value={result.score}
-              size={150}
-              label={`${result.correct}/${result.total}`}
-            />
+            <ProgressRing value={result.score} size={150} label={`${result.correct}/${result.total}`} />
             <h1 className="mt-4 text-2xl font-bold">{verdict}</h1>
             <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
               <div className="rounded-xl bg-emerald-500/10 p-3">
@@ -161,22 +234,27 @@ export default function QuizAssignmentPage() {
                 <div className="text-xs text-slate-500">{q.skippedLabel}</div>
               </div>
             </div>
-            <div className="mt-6 flex gap-2">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  setAnswers(Array(questions.length).fill(null));
-                  setCurrent(0);
-                  setSubmitted(false);
-                  setResult(null);
-                }}
-              >
-                <RotateCcw className="h-4 w-4" /> {q.retry}
+            <div className="mt-6 flex flex-col gap-2">
+              <Button className="w-full" onClick={() => setShowReview(true)}>
+                <ClipboardList className="h-4 w-4" /> {q.review}
               </Button>
-              <Link href="/demo/student" className="flex-1">
-                <Button className="w-full">{q.back}</Button>
-              </Link>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setAnswers(Array(questions.length).fill(null));
+                    setCurrent(0);
+                    setSubmitted(false);
+                    setResult(null);
+                  }}
+                >
+                  <RotateCcw className="h-4 w-4" /> {q.retry}
+                </Button>
+                <Link href="/demo/student" className="flex-1">
+                  <Button variant="outline" className="w-full">{q.back}</Button>
+                </Link>
+              </div>
             </div>
           </Card>
         </motion.div>
@@ -184,15 +262,12 @@ export default function QuizAssignmentPage() {
     );
   }
 
+  /* ---------- Quiz screen ---------- */
   const currentQ = questions[current];
 
-  /* ---------- Quiz screen ---------- */
   return (
     <DashboardShell role="student">
-      <Link
-        href="/demo/student"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary"
-      >
+      <Link href="/demo/student" className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary">
         <ArrowLeft className="h-4 w-4" /> {q.back}
       </Link>
 
@@ -207,26 +282,18 @@ export default function QuizAssignmentPage() {
           <Card>
             <div className="mb-4">
               <div className="mb-2 flex justify-between text-xs text-slate-400">
-                <span>
-                  {current + 1} / {questions.length}
-                </span>
-                <span>
-                  {answeredCount} {q.answered.toLowerCase()}
-                </span>
+                <span>{current + 1} / {questions.length}</span>
+                <span>{answeredCount} {q.answered.toLowerCase()}</span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                 <div
                   className="h-full rounded-full bg-primary transition-all duration-300"
-                  style={{
-                    width: `${((current + 1) / questions.length) * 100}%`,
-                  }}
+                  style={{ width: `${((current + 1) / questions.length) * 100}%` }}
                 />
               </div>
             </div>
 
-            <h2 className="mb-5 text-lg font-semibold">
-              {current + 1}. {currentQ.q}
-            </h2>
+            <h2 className="mb-5 text-lg font-semibold">{current + 1}. {currentQ.q}</h2>
 
             <div className="space-y-2.5">
               {currentQ.options.map((opt, oi) => {
@@ -248,11 +315,7 @@ export default function QuizAssignmentPage() {
                           : "border-slate-300 dark:border-slate-600"
                       }`}
                     >
-                      {selected ? (
-                        <Check className="h-3.5 w-3.5" />
-                      ) : (
-                        String.fromCharCode(65 + oi)
-                      )}
+                      {selected ? <Check className="h-3.5 w-3.5" /> : String.fromCharCode(65 + oi)}
                     </span>
                     {opt}
                   </button>
@@ -261,12 +324,7 @@ export default function QuizAssignmentPage() {
             </div>
 
             <div className="mt-6 flex items-center justify-between">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrent((p) => Math.max(0, p - 1))}
-                disabled={current === 0}
-              >
+              <Button variant="outline" size="sm" onClick={() => setCurrent((p) => Math.max(0, p - 1))} disabled={current === 0}>
                 <ChevronLeft className="h-4 w-4" /> {q.prev}
               </Button>
               {current === questions.length - 1 ? (
@@ -274,13 +332,7 @@ export default function QuizAssignmentPage() {
                   {submitting ? q.answered + "..." : q.submit}
                 </Button>
               ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setCurrent((p) => Math.min(questions.length - 1, p + 1))
-                  }
-                >
+                <Button variant="outline" size="sm" onClick={() => setCurrent((p) => Math.min(questions.length - 1, p + 1))}>
                   {q.next} <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
@@ -322,16 +374,11 @@ export default function QuizAssignmentPage() {
                 <span className="h-3 w-3 rounded bg-primary" /> {q.current}
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded bg-slate-200 dark:bg-slate-700" />{" "}
-                {q.notAnswered}
+                <span className="h-3 w-3 rounded bg-slate-200 dark:bg-slate-700" /> {q.notAnswered}
               </li>
             </ul>
 
-            <Button
-              className="mt-5 w-full"
-              onClick={handleSubmit}
-              disabled={submitting}
-            >
+            <Button className="mt-5 w-full" onClick={handleSubmit} disabled={submitting}>
               {submitting ? q.answered + "..." : q.submit}
             </Button>
           </Card>

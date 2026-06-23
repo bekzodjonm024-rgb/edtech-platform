@@ -32,7 +32,7 @@ export async function GET(
       material: { select: { kind: true, topic: true, subject: true, data: true } },
       submissions: {
         where: { studentId: user.id },
-        select: { score: true, content: true, feedback: true },
+        select: { score: true, correct: true, total: true, content: true, feedback: true, answers: true },
         take: 1,
       },
     },
@@ -60,6 +60,11 @@ export async function GET(
     }
   }
 
+  let storedAnswers: (number | null)[] | null = null;
+  if (sub?.answers) {
+    try { storedAnswers = JSON.parse(sub.answers); } catch { storedAnswers = null; }
+  }
+
   return NextResponse.json({
     id: assignment.id,
     dueAt: assignment.dueAt,
@@ -68,7 +73,7 @@ export async function GET(
     subject: assignment.material.subject ?? assignment.group.subject ?? assignment.group.name,
     data,
     submission: sub
-      ? { score: sub.score, content: sub.content, feedback }
+      ? { score: sub.score, correct: sub.correct, total: sub.total, content: sub.content, feedback, answers: storedAnswers }
       : null,
   });
 }

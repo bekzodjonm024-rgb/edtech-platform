@@ -11,10 +11,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "student_only" }, { status: 403 });
   }
 
-  const { assignmentId, score, correct, total } = await req.json();
+  const { assignmentId, score, correct, total, answers } = await req.json();
   if (!assignmentId || score == null || correct == null || total == null) {
     return NextResponse.json({ error: "missing_fields" }, { status: 400 });
   }
+  const answersJson =
+    Array.isArray(answers) ? JSON.stringify(answers) : null;
 
   // The student must be a member of the assignment's group.
   const assignment = await prisma.assignment.findUnique({
@@ -35,8 +37,8 @@ export async function POST(req: Request) {
 
   await prisma.submission.upsert({
     where: { assignmentId_studentId: { assignmentId, studentId: user.id } },
-    create: { assignmentId, studentId: user.id, score: s, correct: c, total: t },
-    update: { score: s, correct: c, total: t },
+    create: { assignmentId, studentId: user.id, score: s, correct: c, total: t, answers: answersJson },
+    update: { score: s, correct: c, total: t, answers: answersJson },
   });
 
   return NextResponse.json({ ok: true });
