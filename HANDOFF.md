@@ -178,7 +178,12 @@ npm run dev
    button. Review lists every question with student's answer highlighted green (correct) or
    red (wrong), correct answer marked, skipped questions noted. Answers stored as JSON in
    `Submission.answers` so review works on reload too (uz/en/ru).
-10. Still not built: custom domain (e.g. eduai.uz),
+10. ✅ **DONE — Admin panel** (`/admin`): role-gated (admin only), server-side redirect for others.
+    Pages: Dashboard (stats + recent activity), Users (search/filter/role change/delete),
+    Groups (list/delete), Materials (filter by kind/delete). Guard: `lib/admin-guard.ts`.
+    Setup: `ADMIN_SETUP_SECRET` + `ADMIN_EMAIL` set on Vercel; call
+    `GET /api/admin/setup?secret=...` once. bekzodjonm024@gmail.com is now admin.
+11. Still not built: custom domain (e.g. eduai.uz),
     OneID login (needs official org credentials from id.egov.uz).
 
 ## 11. Test accounts (live)
