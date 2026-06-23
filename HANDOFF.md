@@ -183,7 +183,11 @@ npm run dev
     Groups (list/delete), Materials (filter by kind/delete). Guard: `lib/admin-guard.ts`.
     Setup: `ADMIN_SETUP_SECRET` + `ADMIN_EMAIL` set on Vercel; call
     `GET /api/admin/setup?secret=...` once. bekzodjonm024@gmail.com is now admin.
-11. Still not built: custom domain (e.g. eduai.uz),
+11. ✅ **DONE — Teacher assignment detail page** (`/demo/assignments/[id]`): shows all group
+    members — submitted (score, correct/total, date) vs pending. Quiz: expandable per-student
+    answer review with correct/wrong highlights. Essay: AI feedback score. Stats: completion %,
+    average, group info. Groups page "Natijalar" link updated to point here.
+12. Still not built: custom domain (e.g. eduai.uz),
     OneID login (needs official org credentials from id.egov.uz).
 
 ## 11. Test accounts (live)
