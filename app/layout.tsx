@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo";
 
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
@@ -10,14 +11,41 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "EduAI OS — One Topic, a Complete Learning Ecosystem",
-  description:
-    "AI-powered higher-education platform that turns a single topic into complete learning materials for university faculty and students.",
-  keywords: ["EdTech", "AI education", "presentations", "quizzes", "EduAI OS"],
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "EduAI OS — Bitta mavzudan to'liq o'quv ekotizimi",
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "EduAI OS",
+    "sun'iy intellekt ta'lim",
+    "oliy ta'lim platformasi",
+    "AI ma'ruza generator",
+    "test generator",
+    "EdTech",
+    "AI education",
+  ],
+  authors: [{ name: SITE_NAME }],
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "EduAI OS",
-    description: "One topic — a complete learning ecosystem.",
     type: "website",
+    siteName: SITE_NAME,
+    url: SITE_URL,
+    title: "EduAI OS — Bitta mavzudan to'liq o'quv ekotizimi",
+    description: SITE_DESCRIPTION,
+    locale: "uz_UZ",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EduAI OS — Bitta mavzudan to'liq o'quv ekotizimi",
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
 };
 
