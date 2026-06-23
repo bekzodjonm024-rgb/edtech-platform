@@ -170,7 +170,11 @@ npm run dev
 7. ✅ **DONE — Per-assignment quiz flow** (`/demo/quiz/[id]`): fetches real assignment data,
    shows questions from DB, submits score to `/api/submissions`, shows previous submission on reload.
    Student dashboard link updated from `/demo/quiz` → `/demo/quiz/${a.id}`.
-8. Still not built: notifications (new assignment/deadline), custom domain (e.g. eduai.uz),
+8. ✅ **DONE — Notifications**: `Notification` model in DB; teacher assigning material fans out
+   `new_assignment` notifications to all group members; `GET /api/notifications` also returns
+   computed `deadline_soon` alerts (dueAt within 48h, not yet submitted). Topbar bell shows live
+   unread badge + dropdown panel (uz/en/ru), marks all read on open. `POST /api/notifications` marks stored records read.
+9. Still not built: custom domain (e.g. eduai.uz),
    OneID login (needs official org credentials from id.egov.uz).
 
 ## 11. Test accounts (live)
