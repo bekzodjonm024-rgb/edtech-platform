@@ -70,7 +70,7 @@ export async function POST(
   // The material must belong to this teacher.
   const material = await prisma.material.findFirst({
     where: { id: materialId, userId: user.id },
-    select: { id: true },
+    select: { id: true, topic: true, kind: true },
   });
   if (!material) return NextResponse.json({ error: "material_not_found" }, { status: 404 });
 
@@ -79,7 +79,31 @@ export async function POST(
   });
   if (existing) return NextResponse.json({ error: "already_assigned" }, { status: 409 });
 
-  await prisma.assignment.create({ data: { groupId: id, materialId, dueAt: due } });
+  const group = await prisma.group.findUnique({
+    where: { id },
+    select: { name: true, members: { select: { studentId: true } } },
+  });
+
+  const assignment = await prisma.assignment.create({ data: { groupId: id, materialId, dueAt: due } });
+
+  // Notify all group members about the new assignment.
+  if (group && group.members.length > 0) {
+    const kindLabel = material.kind === "quiz" ? "Test" : material.kind === "essay" ? "Uy vazifasi" : "Taqdimot";
+    await prisma.notification.createMany({
+      data: group.members.map((m) => ({
+        userId: m.studentId,
+        kind: "new_assignment",
+        title: `Yangi topshiriq: ${kindLabel}`,
+        body: material.topic,
+        href: material.kind === "quiz"
+          ? `/demo/quiz/${assignment.id}`
+          : material.kind === "essay"
+          ? `/demo/essay/${assignment.id}`
+          : `/demo/view/${assignment.id}`,
+      })),
+    });
+  }
+
   return NextResponse.json({ ok: true });
 }
 

@@ -12,18 +12,33 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(cuid())
-  email       String       @unique
-  name        String
-  role        String       @default("teacher") // "teacher" | "student"
-  password    String? // null for OAuth-only (Google / Telegram) users
-  provider    String       @default("email") // "email" | "google" | "telegram"
-  providerId  String? // Google sub / Telegram id
-  createdAt   DateTime     @default(now())
-  materials   Material[]
-  ownedGroups Group[]      @relation("TeacherGroups")
-  memberships Membership[] @relation("StudentMemberships")
-  submissions Submission[] @relation("StudentSubmissions")
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  role          String         @default("teacher") // "teacher" | "student"
+  password      String? // null for OAuth-only (Google / Telegram) users
+  provider      String         @default("email") // "email" | "google" | "telegram"
+  providerId    String? // Google sub / Telegram id
+  createdAt     DateTime       @default(now())
+  materials     Material[]
+  ownedGroups   Group[]        @relation("TeacherGroups")
+  memberships   Membership[]   @relation("StudentMemberships")
+  submissions   Submission[]   @relation("StudentSubmissions")
+  notifications Notification[]
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String    // "new_assignment" | "deadline_soon"
+  title     String
+  body      String
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Group {

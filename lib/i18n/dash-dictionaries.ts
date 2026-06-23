@@ -137,6 +137,11 @@ export type DashDict = {
     errWrong: string;
     pwSaved: string;
   };
+  notif: {
+    title: string;
+    empty: string;
+    markRead: string;
+  };
 };
 
 export const dashDictionaries: Record<Locale, DashDict> = {
@@ -305,6 +310,11 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       errWrong: "Joriy parol noto'g'ri",
       pwSaved: "Parol yangilandi ✓",
     },
+    notif: {
+      title: "Bildirishnomalar",
+      empty: "Hech qanday bildirishnoma yo'q",
+      markRead: "Barchasini o'qilgan deb belgilash",
+    },
   },
   en: {
     sidebarTeacher: {
@@ -471,6 +481,11 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       errWrong: "Current password is incorrect",
       pwSaved: "Password updated ✓",
     },
+    notif: {
+      title: "Notifications",
+      empty: "No notifications yet",
+      markRead: "Mark all as read",
+    },
   },
   ru: {
     sidebarTeacher: {
@@ -636,6 +651,11 @@ export const dashDictionaries: Record<Locale, DashDict> = {
       errMismatch: "Пароли не совпадают",
       errWrong: "Текущий пароль неверный",
       pwSaved: "Пароль обновлён ✓",
+    },
+    notif: {
+      title: "Уведомления",
+      empty: "Уведомлений пока нет",
+      markRead: "Отметить все как прочитанные",
     },
   },
 };
