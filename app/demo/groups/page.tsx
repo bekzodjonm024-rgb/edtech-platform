@@ -9,6 +9,10 @@ import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
+import { useToast } from "@/components/ui/toast";
 import {
   Users,
   Plus,
@@ -64,9 +68,6 @@ export default function GroupsPage() {
     load();
   }, []);
 
-  const field =
-    "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-primary dark:border-slate-700 dark:bg-slate-800";
-
   return (
     <DashboardShell role={role}>
       <div className="mb-6">
@@ -77,9 +78,9 @@ export default function GroupsPage() {
       </div>
 
       {role === "teacher" ? (
-        <CreateGroup g={g} field={field} onCreated={load} />
+        <CreateGroup g={g} onCreated={load} />
       ) : (
-        <JoinGroup g={g} field={field} onJoined={load} />
+        <JoinGroup g={g} onJoined={load} />
       )}
 
       <div className="mt-6 space-y-4">
@@ -88,9 +89,10 @@ export default function GroupsPage() {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : groups.length === 0 ? (
-          <Card className="py-12 text-center text-slate-500 dark:text-slate-400">
-            {role === "teacher" ? g.noGroupsTeacher : g.noGroupsStudent}
-          </Card>
+          <EmptyState
+            icon={Users}
+            title={role === "teacher" ? g.noGroupsTeacher : g.noGroupsStudent}
+          />
         ) : (
           groups.map((grp) =>
             role === "teacher" ? (
@@ -108,11 +110,9 @@ export default function GroupsPage() {
 /* ---------- Teacher: create form ---------- */
 function CreateGroup({
   g,
-  field,
   onCreated,
 }: {
   g: (typeof groupStrings)["uz"];
-  field: string;
   onCreated: () => void;
 }) {
   const [name, setName] = useState("");
@@ -143,17 +143,15 @@ function CreateGroup({
         <Plus className="h-5 w-5 text-primary" /> {g.createGroup}
       </h3>
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-        <input
+        <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={g.groupNamePlaceholder}
-          className={field}
         />
-        <input
+        <Input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder={g.subjectPlaceholder}
-          className={field}
         />
         <Button type="submit" disabled={loading || !name.trim()}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
@@ -167,24 +165,19 @@ function CreateGroup({
 /* ---------- Student: join form ---------- */
 function JoinGroup({
   g,
-  field,
   onJoined,
 }: {
   g: (typeof groupStrings)["uz"];
-  field: string;
   onJoined: () => void;
 }) {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [ok, setOk] = useState(false);
+  const { toast } = useToast();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim()) return;
     setLoading(true);
-    setError("");
-    setOk(false);
     try {
       const res = await fetch("/api/groups/join", {
         method: "POST",
@@ -192,21 +185,23 @@ function JoinGroup({
         body: JSON.stringify({ code: code.trim() }),
       });
       if (res.ok) {
-        setOk(true);
+        toast({ type: "success", message: g.joined });
         setCode("");
         onJoined();
       } else {
         const data = await res.json();
-        setError(
-          data.error === "invalid_code"
-            ? g.errInvalidCode
-            : data.error === "already_member"
-            ? g.errAlreadyMember
-            : g.errGeneric
-        );
+        toast({
+          type: "error",
+          message:
+            data.error === "invalid_code"
+              ? g.errInvalidCode
+              : data.error === "already_member"
+              ? g.errAlreadyMember
+              : g.errGeneric,
+        });
       }
     } catch {
-      setError(g.errGeneric);
+      toast({ type: "error", message: g.errGeneric });
     } finally {
       setLoading(false);
     }
@@ -218,19 +213,17 @@ function JoinGroup({
         <UserPlus className="h-5 w-5 text-primary" /> {g.joinGroup}
       </h3>
       <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
-        <input
+        <Input
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           placeholder={g.enterCode}
-          className={`${field} font-mono uppercase tracking-wider`}
+          className="font-mono uppercase tracking-wider"
         />
         <Button type="submit" disabled={loading || !code.trim()}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
           {loading ? g.joining : g.join}
         </Button>
       </form>
-      {error && <p className="mt-2 text-sm text-rose-500">{error}</p>}
-      {ok && <p className="mt-2 text-sm text-emerald-500">{g.joined}</p>}
     </Card>
   );
 }
@@ -245,8 +238,10 @@ function TeacherGroupCard({
   g: (typeof groupStrings)["uz"];
   onChange: () => void;
 }) {
+  const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [members, setMembers] = useState<Member[] | null>(null);
 
   const copy = async () => {
@@ -319,11 +314,14 @@ function TeacherGroupCard({
   };
 
   const deleteGroup = async () => {
+    setConfirmOpen(false);
     await fetch(`/api/groups/${grp.id}`, { method: "DELETE" });
+    toast({ type: "success", message: `${grp.name} — ${g.delete.toLowerCase()} ✓` });
     onChange();
   };
 
   return (
+    <>
     <Card>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -336,7 +334,7 @@ function TeacherGroupCard({
           </div>
         </div>
         <button
-          onClick={deleteGroup}
+          onClick={() => setConfirmOpen(true)}
           aria-label={g.delete}
           className="text-slate-400 transition-colors hover:text-rose-500"
         >
@@ -440,6 +438,19 @@ function TeacherGroupCard({
         </div>
       )}
     </Card>
+
+    <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)} title={g.deleteTitle}>
+      <p className="text-sm text-slate-600 dark:text-slate-300">{g.deleteConfirm}</p>
+      <div className="mt-6 flex justify-end gap-2">
+        <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+          {g.cancel}
+        </Button>
+        <Button className="bg-rose-500 text-white hover:bg-rose-600" onClick={deleteGroup}>
+          <Trash2 className="h-4 w-4" /> {g.delete}
+        </Button>
+      </div>
+    </Modal>
+    </>
   );
 }
 

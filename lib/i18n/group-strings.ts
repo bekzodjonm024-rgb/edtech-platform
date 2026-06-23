@@ -19,6 +19,9 @@ export const groupStrings: Record<Locale, {
   noMembers: string;
   view: string;
   delete: string;
+  deleteTitle: string;
+  deleteConfirm: string;
+  cancel: string;
   remove: string;
   back: string;
   joinGroup: string;
@@ -68,6 +71,9 @@ export const groupStrings: Record<Locale, {
     noMembers: "Hali talaba qo'shilmagan",
     view: "Ko'rish",
     delete: "O'chirish",
+    deleteTitle: "Guruhni o'chirish",
+    deleteConfirm: "Bu guruh va unga biriktirilgan barcha materiallar o'chiriladi. Davom etilsinmi?",
+    cancel: "Bekor qilish",
     remove: "Chiqarish",
     back: "Orqaga",
     joinGroup: "Guruhga qo'shilish",
@@ -117,6 +123,9 @@ export const groupStrings: Record<Locale, {
     noMembers: "No students yet",
     view: "View",
     delete: "Delete",
+    deleteTitle: "Delete group",
+    deleteConfirm: "This group and all its assigned materials will be deleted. Continue?",
+    cancel: "Cancel",
     remove: "Remove",
     back: "Back",
     joinGroup: "Join a group",
@@ -166,6 +175,9 @@ export const groupStrings: Record<Locale, {
     noMembers: "Студентов пока нет",
     view: "Открыть",
     delete: "Удалить",
+    deleteTitle: "Удалить группу",
+    deleteConfirm: "Эта группа и все назначенные материалы будут удалены. Продолжить?",
+    cancel: "Отмена",
     remove: "Исключить",
     back: "Назад",
     joinGroup: "Присоединиться к группе",
