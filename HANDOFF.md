@@ -174,8 +174,12 @@ npm run dev
    `new_assignment` notifications to all group members; `GET /api/notifications` also returns
    computed `deadline_soon` alerts (dueAt within 48h, not yet submitted). Topbar bell shows live
    unread badge + dropdown panel (uz/en/ru), marks all read on open. `POST /api/notifications` marks stored records read.
-9. Still not built: custom domain (e.g. eduai.uz),
-   OneID login (needs official org credentials from id.egov.uz).
+9. ✅ **DONE — Quiz review screen**: after submitting, result screen shows "Javoblarni ko'rish"
+   button. Review lists every question with student's answer highlighted green (correct) or
+   red (wrong), correct answer marked, skipped questions noted. Answers stored as JSON in
+   `Submission.answers` so review works on reload too (uz/en/ru).
+10. Still not built: custom domain (e.g. eduai.uz),
+    OneID login (needs official org credentials from id.egov.uz).
 
 ## 11. Test accounts (live)
 
