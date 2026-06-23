@@ -236,5 +236,7 @@ style (`cn` from `lib/utils`, `forwardRef`, brand tokens `primary`/`secondary`, 
 - **Toast usage**: `<Toaster>` is wired into `app/providers.tsx` (innermost), so any client component can do
   `const { toast } = useToast(); toast({ type: "success", message: "…" })`. Types: success/error/info,
   auto-dismiss 4s. Uses the existing `animate-fade-up` keyframe.
-- ⚠️ These are **built but not yet adopted** across existing pages — they're tree-shaken until imported.
-  Next opportunity: refactor dashboard/auth forms to use them for visual consistency (low risk, incremental).
+- **Adopted so far**: `login`, `register`, and `demo/settings` now use `Input`/`Label` (replaced
+  duplicated hand-rolled `field`/`label` classes) and `settings` uses `useToast()` for save feedback.
+  Remaining pages (groups, materials, generate, dashboards) still use ad-hoc markup — adopt incrementally
+  (low risk) for full visual consistency.
