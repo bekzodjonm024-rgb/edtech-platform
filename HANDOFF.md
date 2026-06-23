@@ -236,7 +236,8 @@ style (`cn` from `lib/utils`, `forwardRef`, brand tokens `primary`/`secondary`, 
 - **Toast usage**: `<Toaster>` is wired into `app/providers.tsx` (innermost), so any client component can do
   `const { toast } = useToast(); toast({ type: "success", message: "…" })`. Types: success/error/info,
   auto-dismiss 4s. Uses the existing `animate-fade-up` keyframe.
-- **Adopted so far**: `login`, `register`, and `demo/settings` now use `Input`/`Label` (replaced
-  duplicated hand-rolled `field`/`label` classes) and `settings` uses `useToast()` for save feedback.
-  Remaining pages (groups, materials, generate, dashboards) still use ad-hoc markup — adopt incrementally
-  (low risk) for full visual consistency.
+- **Adopted so far**: `login`, `register`, `demo/settings` use `Input`/`Label` (replaced duplicated
+  hand-rolled `field`/`label` classes); `settings` uses `useToast()` for save feedback. `demo/groups` uses
+  `Input` + `EmptyState` + `Toast`, and **group deletion now requires a confirmation `Modal`** (was instant
+  & irreversible with no prompt — added `deleteTitle`/`deleteConfirm`/`cancel` i18n keys uz/en/ru).
+  Remaining pages (materials, generate, dashboards) still use ad-hoc markup — adopt incrementally (low risk).
